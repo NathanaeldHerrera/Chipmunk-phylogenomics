@@ -116,42 +116,42 @@ vcftools --gzvcf populations.snps.vcf --site-mean-depth --out ./vcf_stats/tamias
 vcftools --gzvcf populations.snps.vcf --missing-site --out ./vcf_stats/tamias_178Ind_pop_raw
 ```
 ## Next we can use R to plot the results to detect outliers and set DP/ missingness cutoffs using the emperical distributions.
-
-_____________________________________________________________________________________________________________________________________________
-#### IQ- Tree ####
-### Apply some general filtering:
+## IQ- Tree
+We first will apply some basic filtering to clean up our final alignment:
+```
 vcftools --vcf populations.snps.vcf --minDP 3 --minGQ 20 --max-missing 0.50 --max-alleles 2 --recode --recode-INFO-all --out iqTree.snps.filtered
-# After filtering, kept 189 out of 189 Individuals
-# After filtering, kept 310361 out of a possible 318618 Sites
+```
+## After filtering, kept 189 out of 189 Individuals
+After filtering, kept 310361 out of a possible 318618 Sites
 
-# Exclude low coverage samples using a > 50% missingness cutoff.
+Exclude low coverage samples using a > 50% missingness cutoff.
+```
 vcftools --vcf iqTree.snps.filtered.recode.vcf --missing-indv --out tamias_178Ind_pop
-
 # THis creates a list of those indv. that have more than 50% missing data
 mawk '$5 > 0.5' tamias_189Ind_pop.imiss | cut -f1 > lowDP.indv
 
 vcftools --vcf iqTree.snps.filtered.recode.vcf --remove lowDP.indv --recode --recode-INFO-all --out iqTree.snps.filtered.172ind_Final
 # Excludes: 17 individuals (172 out of 189)
-
+```
 # Convert to a phylip file
+```
 vcf2phylip.py -i iqTree.snps.filtered.172ind_Final.recode.vcf -n
-
-# Run IQ-tree
-# 172 individuals, alignment length: 358,836 bp 
-# Best num threads: 11
-# Best model: TVM+F+R5
-# First run we can assess best model and number of threads. 
+```
+## Finally, we can generate an ML tree with IQ-tree
+Here are the final stats for this particular analysis:
+172 individuals, alignment length: 358,836 bp 
+I did an initial run as follows but record here # threads and model for any potential re-runs.
+Best num threads: 11
+Best model: TVM+F+R5
+```
 iqtree2 -s iqTree.snps.filtered.172ind_Final.recode.min4.phy -m TEST -nt AUTO -pre tamias_172ind_RefMap_iqTree -bb 1000 -alrt 1000
-############# 
-# concordance factors with IQ-Tree
-#############
-# To infer site concordance factors, we first have to generate a general ML tree as above.
-# calculate site concordance factors:
-# alignment is the sequence alignment of concatenated data
-# concat.treefile is the output ML concat tree from above analysis
+```
 
+## Lastly, I will calculate site concordance factors using IQ-Tree
+To infer site concordance factors, we first have to generate a general ML tree as above and then use the msa to calculate sCF.
+```
 iqtree2 -t tamias_172ind_RefMap_iqTree.contree -s iqTree.snps.filtered.172ind_Final.recode.min4.phy --scf 1000 --prefix tamias_172ind_RefMap_iqTree.sCF
-
+```
 _____________________________________________________________________________________________________________________________________________
 ### populations for strucutre output
 # Pulling out randomized SNP for admixture
