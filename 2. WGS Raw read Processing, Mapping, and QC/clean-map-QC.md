@@ -108,7 +108,7 @@ fi
 done
 ```
 
-## We can now Remove intermediate bam files to maintain a small footprint
+## We can now Remove intermediate bam files to maintain a small(er) footprint
 ```
 rm *_PE.ba* *_SE.ba* *_ME.ba* *_addRG.ba* *deduped.ba*
 ```
