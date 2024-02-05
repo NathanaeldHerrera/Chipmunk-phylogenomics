@@ -19,7 +19,7 @@ done
 ```
 PCR duplicates were then removed using a custom Python script from [Peterson et al. 2012](https://pubmed.ncbi.nlm.nih.gov/22675423/)
 - Requires Python 2
-- NOTE: The python script ddRad_pcr_deduper.py as provided in this repository was provided, unedited by me from [Dr. Jesse Webber](https://weberlab.integrativebiology.wisc.edu/).
+- NOTE: The python script ddRad_pcr_deduper.py as provided in this repository was provided, unedited by me, by [Dr. Jesse Webber](https://weberlab.integrativebiology.wisc.edu/).
 ```
 for i in *.1.fq.gz ;
 do
