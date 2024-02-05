@@ -157,7 +157,7 @@ then
 fi
 done
 ```
-Unfortunaltey FastaAlternateReferenceMaker modifies the refence scaffold names to a simplified sequential order. We can use [rename.py]() to make sure reference genome scaffold
+Unfortunaltey FastaAlternateReferenceMaker modifies the refence scaffold names to a simplified sequential order. We can use [rename.py](https://github.com/NathanaeldHerrera/Chipmunk-phylogenomics/blob/main/3.%20Variant%20Discovery%20and%20Fasta%20Consensus/rename.py) to make sure reference genome scaffold
 names match single sample FASTA scaffold names.
 ```
 for i in */*_consensus.fa ;
