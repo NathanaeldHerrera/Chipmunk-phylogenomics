@@ -40,7 +40,8 @@ if [ ! -f "$name1"_PE.bam ]
  fi
  done
 ```
-Add RG to bams: NOTE- fields will change depending on sequencing run.
+Add RG to bams:
+- fields will change depending on sequencing run.
 ```
 for i in *_PE.bam;
 do
