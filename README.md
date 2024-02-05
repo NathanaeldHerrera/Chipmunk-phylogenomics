@@ -1,4 +1,4 @@
-# Chipmunk-phylogenomics
+# Western Chipmunk Phylogenomics Project
 Pipeline describing raw read processing through variant discovery, and phylogenetic analysis of western chipmunks for both ddRADseq and whole genome sequence data. We performed species tree inference, estimated hybridization with species network inference, and summary statistics (D-statistics, fraction of admixture, admixture proportion).
 
 In each section bellow, I describe the pipeline used in a markdown file (follow links below). Scripts referenced in each section can be found inside the respective folders.
