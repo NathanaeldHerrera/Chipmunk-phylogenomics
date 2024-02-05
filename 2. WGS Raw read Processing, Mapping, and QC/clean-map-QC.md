@@ -17,7 +17,7 @@ mv *$barcode* $barcode;
 done
 ```
 ## FastP QC using MultiQC
-We can use multiQC to consolodate the FastP log files into a nice HTML to assess quality metrics of our cleaned read data
+We can use multiQC to consolidate the FastP log files into a nice HTML to assess quality metrics of our cleaned read data
 ```
 multiqc .
 ```
