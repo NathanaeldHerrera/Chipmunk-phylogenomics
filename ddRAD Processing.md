@@ -67,7 +67,7 @@ do
    samtools index "$name1"_final.bam
 done
 ```
-## Genotype sites using gstacks
+## Genotyping sites using gstacks
 We provide a population map file (tamias_popmap.txt) defining our metapopulations for genotyping. It is formatted as:
 
 |        |       |
@@ -82,7 +82,8 @@ We provide a population map file (tamias_popmap.txt) defining our metapopulation
 ```
 gstacks -I ./final_aligned_bams -O ./stacks/gstacks_2 -M ./tamias_popmap.txt -t 24
 ```
-## Here, we use populations to generate various call files (VCF,etc) for population genetic analyses
+## Population genetic analyses
+We will use populations to generate various call files (VCF,etc) for population genetic analyses
 ```
 populations \
    -P gstacks_RefMap \
@@ -98,7 +99,8 @@ populations \
    --vcf \
    --phylip-var
 ```
-## Before moving on I want to assess some QC metrics such as:
+## Before moving on I want to assess some QC metrics
+such as:
   - Mean depth per Individual
   - Proportion of missing data per individual
   - Variant mean Depth
@@ -118,7 +120,10 @@ vcftools --gzvcf populations.snps.vcf --site-mean-depth --out ./vcf_stats/tamias
 # Calculate proportion of missing data per site
 vcftools --gzvcf populations.snps.vcf --missing-site --out ./vcf_stats/tamias_178Ind_pop_raw
 ```
-## Next we can use R to plot the results to detect outliers and set DP/ missingness cutoffs using the emperical distributions.
+Next we can use R to plot the results to detect outliers and set DP/ missingness cutoffs using the emperical distributions.
+
+See vcf_QC_metrics_plot.r
+
 ## Phylogenetic Analysis
 We first will apply some basic filtering to clean up our final alignment:
 ```
@@ -158,8 +163,7 @@ a branch in the reference tree.
 ```
 iqtree2 -t tamias_172ind_RefMap_iqTree.contree -s iqTree.snps.filtered.172ind_Final.recode.min4.phy --scf 1000 --prefix tamias_172ind_RefMap_iqTree.sCF
 ```
-_____________________________________________________________________________________________________________________________________________
-### Analysis of Admixture
+## Analysis of Admixture
 First, we will randomly subsample one SNP per locus
 ```
 populations \
@@ -249,14 +253,9 @@ vcf2phylip.py -i svdQ_SNP.filtered.172ind.100bp.thin.vcf.gz -n
 SVDquartets is described in [Chifman & Kubatko 2014](https://academic.oup.com/bioinformatics/article/30/23/3317/206559?login=true).
 SVDQ is run through [PAUP*](https://paup.phylosolutions.com/)
 First, we will construct our Paup blocks for two analyses. One will be a lineage tree and a second where we define species groupings and etimate a species tree.
-initiat paup:
-```
-paup4a168_ubuntu64
-```
-# call file
-Execute run_svdquartets_ddRads_lineagetree.sh
 
-#Lineage Tree paup block: run_svdquartets_ddRads_lineagetree.sh
+Lineage Tree paup block: run_svdquartets_ddRads_lineagetree.sh
+```
 begin paup;
         log start file=svdQ.172ind.lineageTree.log replace;
         execute ./svdQ_SNP.filtered.172ind.100bp.thin.min4.nexus;
@@ -264,9 +263,17 @@ begin paup;
         SVDquartets evalQuartets=all bootstrap=yes nreps=1000 nthreads=24 mrpFile=svdQ.172ind.lineageTree_qall_b1000; 
         savetrees file=svdQ.172ind.lineageTree.b1000.tre format=Newick root=yes supportValues=nodeLabels;
 end;
-
-# For the species tree, we first need to create taxa partitions (Tamias_species). I created a separate txt file called svdQ_totalSet_lineage_partitions.txt
-# Here is what it looks like:
+```
+begin paup:
+```
+paup4a168_ubuntu64
+```
+Within Paup* we can execute our analyses
+```
+Execute run_svdquartets_ddRads_lineagetree.sh
+```
+For the species tree, we first need to create taxa partition. This taxa partiotion is then added to the final nexus file at the end for the species tree analysis
+```
 begin sets;
     taxpartition Tamias_species =
       amoenus: amoenusFMNH126103 amoenusJMG008 amoenusJMG058 amoenusJMS220 amoenusJRD008 amoenusJRD023 amoenusJRD028 amoenusJRD158 amoenusJRD161 amoenuslutiJMS297 amoenusMSB224396 amoenusMSB224913 amoenusMSB225555 amoenusMSB225676 amoenusMSB227699 amoenusMSB227795 amoenusMSB227882 amoenusMSB228278 amoenusMSB230567 amoenusMSB268064 amoenusMSB268065 amoenusMSB268069 amoenusMSB269634 amoenusMSB269635 amoenusMSB269636 amoenusMSB269638 amoenusMSB269640 amoenusMSB269856 amoenusMSB269857 amoenusMSB269858 amoenusMSB269867 amoenusMSB269868 amoenusMSB269869 amoenusMSB269870 amoenusMSB269871 amoenusMSB269882 amoenusMSB269957 amoenusMSB269966 amoenusMSB274470 amoenusMSB274506 amoenusMSB292133 amoenusMSB292142 amoenusMSB292143 amoenusMSB292145 amoenusNEOR184 amoenusRBCM19566 amoenusRBCM20037 amoenusZM12231 amoenusZM12446 amoenusZM13088 amoenusZM13089 amoenusZM16576 amoenusZM16577 amoenusZM16578 amoenusZM16579 amoenusZM16593 amoenusZM16594 amoenusZM16599,
@@ -276,12 +283,15 @@ begin sets;
       minimus: minimusMSB268068 minimusNDH041 minimusNDH045 minimusNDH063 minimusNDH064 minimusNDH072 minimusNDH084 minimusZM10995 minimusZM11027 minimusZM11417 minimusZM12230 minimusZM12232 minimusZM12233 minimusZM12277 minimusZM13061 minimusZM16544 minimusZM16545,
       ;
 END;
-
-# Finally, cat the nexus dataset file with partionsFile.txt to create the final file which will be run.
-
-#Species Tree paup block: run_svdquartets_ddRads_speciestree.sh
+```
+Species Tree paup block: run_svdquartets_ddRads_speciestree.sh
 Execute run_svdquartets_ddRads_speciestree.sh
-### Paup block run:
+
+```
+Execute run_svdquartets_ddRads_lineagetree.sh
+```
+here is what our paupBlock looks like:
+```
 begin paup;
    log start file=svdQ.172ind.speciesTree.log replace;
    execute ./svdQ_SNP.filtered.172ind.100bp.thin.SpeciesSet.nexus;
@@ -289,12 +299,11 @@ begin paup;
    SVDquartets evalQuartets=all bootstrap=yes nreps=1000 taxpartition=Tamias_species nthreads=8 mrpFile=svdQ.172ind.SpeciesTree_qall_b1000;
    savetrees file=svdQ.172ind..SpeciesTree.b1000.tre format=Newick root=yes supportValues=nodeLabels;
 end;
-________________________________________________________________________________________________________________________________________
-#### HyDe ####
-# We used HyDe to detect hybridization under the invariants framework of SVDquartets.
-# HyDe allows us to estimate γ, which is the parental contribution in a putatively hybrid genome, 
-# where a value of 0.5 would indicate a 50:50 genomic contribution from each parent. 
+```
 
-vcf2phylip.py -i svdQ_SNP.filtered.172ind.100bp.thin.vcf -n
+## Analysis of Hybridization
+We used HyDe to detect hybridization under the invariants framework of SVDquartets. The theory behind HyDe can be found in [Blischal et al. 2018](https://academic.oup.com/sysbio/article/67/5/821/4944070?login=true)
+
+```
 run_hyde.py -i HyDe_SNP.filtered.172ind.100bp.thin.phy -m hyde_popMap_5sp.txt -o minimus -n 172 -t 5 -s 47537
-________________________________________________________________________________________________________________________________________
+```
