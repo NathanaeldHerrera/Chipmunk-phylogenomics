@@ -124,7 +124,7 @@ vcftools --gzvcf populations.snps.vcf --missing-site --out ./vcf_stats/tamias_17
 ```
 Next we can use R to plot the results to detect outliers and set DP/ missingness cutoffs using the emperical distributions.
 
-See vcf_QC_metrics_plot.r
+See [vcf_QC_metrics_plot.r](https://github.com/NathanaeldHerrera/Chipmunk-phylogenomics/blob/main/1.%20ddRAD%20Processing%20and%20Analyses/vcf_metrics_plot.r)
 
 ## Phylogenetic Analysis
 We first will apply some basic filtering to clean up our final alignment:
