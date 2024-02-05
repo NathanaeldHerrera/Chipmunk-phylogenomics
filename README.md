@@ -7,4 +7,4 @@ Contact:ndh04c (at) gmail.com
 
 Sections
 
-1. [a relative link](ddRad Processing and Analyses)
+1. [ddRAD data processing](ddRad Processing and Analyses)
