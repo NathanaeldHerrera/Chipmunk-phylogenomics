@@ -1,4 +1,4 @@
-## ddRAD data processing using Stacks v2.55
+## ddRAD data processing using [Stacks v2.55](http://catchenlab.life.illinois.edu/stacks/)
 
 I used process_radtags first to process our raw ddRAD-seq data (PE sequencing).
 Libraries are demultiplexed as below:
@@ -26,7 +26,8 @@ do
    ddRad_pcr_deduper.py -1 "$name1".1.fq.gz -2 "$name1".2.fq.gz -o dedupped_reads
 done
 ```
-## Pre-processed ddRADs were then mapped to the T. minimus V1 reference using BWA 
+## Raw read mapping 
+Our final raw reads were mapped to the T. minimus V1 reference using [BWA-mem](https://academic.oup.com/bioinformatics/article/25/14/1754/225615?login=true)
 ```
 for i in *1.fq.gz;
 do
@@ -38,7 +39,7 @@ if [ ! -f "$name1"_PE.bam ]
  fi
  done
 ```
-## Add RG to bams: NOTE- fields will change depending on sequencing run.
+Add RG to bams: NOTE- fields will change depending on sequencing run.
 ```
 for i in *_PE.bam;
 do
@@ -52,7 +53,7 @@ if [ ! -f "$name1"_PE.addRG.bam ]
  fi
  done
 ```
-## Next, we will sort and index our final bam files.
+Next, we will sort and index our final bam files.
 ```
 for i in *_PE.addRG.bam;
 do
