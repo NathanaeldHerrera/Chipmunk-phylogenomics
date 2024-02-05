@@ -7,4 +7,4 @@ Contact:ndh04c (at) gmail.com
 
 Sections
 
-1. [ddRAD data processing](https://github.com/NathanaeldHerrera/Chipmunk-phylogenomics/blob/main/ddRAD%20Processing.md)
+1. [ddRAD data Processing and ddRAD Analyses](ddRAD Processing and Analyses)
