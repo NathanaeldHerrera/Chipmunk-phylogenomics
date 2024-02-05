@@ -86,10 +86,9 @@ As before, we can consolodate our Qualimap reports with multiqc
 ```
 multiqc .
 ```
-## Variant discovery using GATK version 3.8 
-We are now ready to move on to variant calling using the GATK (v 3.8) pipeline.
+## Indel realignment
+This will result in our final mapped bams
 
-First, we perform indel realignment
 ```
 for i in */*deduped.bam;
 do
@@ -99,17 +98,17 @@ do
 if [ ! -f $name2.realignment_targets.list ]
  then
  	echo "running"
-	gatk3 -T RealignerTargetCreator -R $REF -I "$name2"_deduped.bam -o "$name2".realignment_targets.list
+	gatk -T RealignerTargetCreator -R $REF -I "$name2"_deduped.bam -o "$name2".realignment_targets.list
 fi
 if [ ! -f "$name2"_realigned.bam ]
 then
 	echo "running"
-	gatk3 -T IndelRealigner -Xmx50g -R $REF -I "$name2"_deduped.bam -targetIntervals $name2.realignment_targets.list -o "$name2"_realigned.bam TMP_DIR=$TMP
+	gatk -T IndelRealigner -Xmx50g -R $REF -I "$name2"_deduped.bam -targetIntervals $name2.realignment_targets.list -o "$name2"_realigned.bam TMP_DIR=$TMP
 fi
 done
 ```
 
-## We can now Remove intermediate files to maintain a small footprint
+## We can now Remove intermediate bam files to maintain a small footprint
 ```
-rm *_PE.ba* *_SE.ba* *_Merged.ba* *_addRG.ba* *deduped.ba* *AllCalls.vcf* *.bed *_consensus.fa
+rm *_PE.ba* *_SE.ba* *_ME.ba* *_addRG.ba* *deduped.ba*
 ```
