@@ -1,4 +1,4 @@
-### Now we can assess our SNPs #####
+
 
 # Define some env variables for ease of use
 IN_VCF=./populations.snps.vcf
@@ -37,28 +37,47 @@ vcftools --gzvcf $IN_VCF --het --out $OUT
 
 #PLOT stats in R
 
-# load tidyverse package
+# load necessary packages for plotting
 library(tidyverse)
 library(ggplot2)
+
+# Run date for output plots
+run_date <- format(Sys.Date(), "%d%b%Y")
 
 # Variant mean Depth
 var_depth <- read_delim("./tamias_178Ind_pop.ldepth.mean", delim = "\t",
            col_names = c("chr", "pos", "mean_depth", "var_depth"), skip = 1)
 
+# Summarize mean Depth 
+summary(var_depth$mean_depth)
+a + theme_light() + xlim(0, 100)
+
+# plot right here
 a <- ggplot(var_depth, aes(mean_depth)) + geom_density(fill = "dodgerblue1", colour = "black", alpha = 0.3)
 a + theme_light()           
 
-summary(var_depth$mean_depth)
-a + theme_light() + xlim(0, 100)
+# Output to pdf
+pdf(file=paste("./vcf_metric_plots/Rplot_meanDP_",run_date,".pdf",sep=""),width=8,height=8)
+a <- ggplot(var_depth, aes(mean_depth)) + geom_density(fill = "dodgerblue1", colour = "black", alpha = 0.3)
+a + theme_light() 
+dev.off()
 
 # Variant missingness
 var_miss <- read_delim("./tamias_178Ind_pop.lmiss", delim = "\t",
                        col_names = c("chr", "pos", "nchr", "nfiltered", "nmiss", "fmiss"), skip = 1)
 
+# Summarize variant missingness
+summary(var_miss$fmiss)
+
+# Plot for right here
 a <- ggplot(var_miss, aes(fmiss)) + geom_density(fill = "dodgerblue1", colour = "black", alpha = 0.3)
 a + theme_light()
 
-summary(var_miss$fmiss)
+# Output to pdf
+pdf(file=paste("./vcf_metric_plots/Rplot_VariantMiss_",run_date,".pdf",sep=""),width=8,height=8)
+a <- ggplot(var_miss, aes(fmiss)) + geom_density(fill = "dodgerblue1", colour = "black", alpha = 0.3)
+a + theme_light() 
+dev.off()
 
 # Minor allele frequency
 var_freq <- read_delim("./tamias_178Ind_pop.frq", delim = "\t",
@@ -66,10 +85,18 @@ var_freq <- read_delim("./tamias_178Ind_pop.frq", delim = "\t",
 # find minor allele frequency
 var_freq$maf <- var_freq %>% select(a1, a2) %>% apply(1, function(z) min(z))
 
+# Summarize MAF
+summary(var_freq$maf)
+
+# Plot for right here
 a <- ggplot(var_freq, aes(maf)) + geom_density(fill = "dodgerblue1", colour = "black", alpha = 0.3)
 a + theme_light()
 
-summary(var_freq$maf)
+# Output to pdf
+pdf(file=paste("./vcf_metric_plots/Rplot_MAF_",run_date,".pdf",sep=""),width=8,height=8)
+a <- ggplot(var_freq, aes(maf)) + geom_density(fill = "dodgerblue1", colour = "black", alpha = 0.3)
+a + theme_light() 
+dev.off()
 
 ### Individual based statistics
 #Mean depth per Individual
@@ -86,11 +113,4 @@ ind_miss  <- read_delim("./tamias_178Ind_pop.imiss", delim = "\t",
 a <- ggplot(ind_miss, aes(fmiss)) + geom_histogram(fill = "dodgerblue1", colour = "black", alpha = 0.3)
 a + theme_light()
 
-
-# Heterozygosity and inbreeding coefficient per individual
-ind_het <- read_delim("./tamias_178Ind_pop.het", delim = "\t",
-           col_names = c("ind","ho", "he", "nsites", "f"), skip = 1)
-
-a <- ggplot(ind_het, aes(f)) + geom_histogram(fill = "dodgerblue1", colour = "black", alpha = 0.3)
-a + theme_light()
 
