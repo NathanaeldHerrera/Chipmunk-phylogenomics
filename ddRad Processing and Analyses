@@ -4,7 +4,7 @@ Libraries are demultiplexed as below:
 I have a barcode file for each library formatted with 2 columns (no headers) as: 
 barcode_1   sampleID_1
 barcode_2   sampleID_2 
-...
+```
 For our PE sequence data I used the following command to demultiplex and pre-process ddRADs
 ```
 for i in *;
