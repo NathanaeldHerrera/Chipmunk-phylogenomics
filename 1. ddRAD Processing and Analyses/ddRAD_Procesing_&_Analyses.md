@@ -17,7 +17,7 @@ do
 	process_radtags -P -p ./raw/"$i" -b ./barcodes/"$i"_barcodes.txt -o ./samples/"$i" -q -r --inline_index --barcode-dist-2 2 --renz_1 sbfI --renz_2 mspI
 done
 ```
-PCR duplicates were then removed using a custom Python script ([ddRad_pcr_deduper.py]()) from [Peterson et al. 2012](https://pubmed.ncbi.nlm.nih.gov/22675423/)
+PCR duplicates were then removed using a custom Python script ([ddRad_pcr_deduper.py](https://github.com/NathanaeldHerrera/Chipmunk-phylogenomics/blob/main/1.%20ddRAD%20Processing%20and%20Analyses/ddRad_pcr_deduper.py)) from [Peterson et al. 2012](https://pubmed.ncbi.nlm.nih.gov/22675423/)
 - Requires Python 2
 - NOTE: The python script ddRad_pcr_deduper.py as provided in this repository was provided, unedited by me, by [Dr. Jesse Webber](https://weberlab.integrativebiology.wisc.edu/).
 ```
