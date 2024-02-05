@@ -226,7 +226,7 @@ Convert back to vcf file for final PCA analysis
 ```
 plink --bfile Tamias_MultiSmpl_Filtered_plink.newID.ldkb1r0.8.maf01 --aec --out Tamias_MultiSmpl_Filtered_plink.newID.ldkb1r0.8.maf01.172ind --recode vcf
 ```
-For PCA anaysis, we are using the R package SNPRelate: See SNPRelate_PCA.r
+For PCA anaysis, we are using the R package SNPRelate: See [SNPRelate_PCA.r](https://github.com/NathanaeldHerrera/Chipmunk-phylogenomics/blob/main/1.%20ddRAD%20Processing%20and%20Analyses/SNPrelate_PCA.r)
 
 ## Species Tree Analysis
 We can analyze our ddRAD data using SVDQuartets which estimates a species tree from unlinked SNP data. For SVDQ, we are going to use the same filtered VCF file from IQ-Tree but we want unlinked snps so we will add an extra thinning step
