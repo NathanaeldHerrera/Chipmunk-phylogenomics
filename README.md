@@ -8,4 +8,4 @@ Contact:ndh04c (at) gmail.com
 Sections
 
 1. [ddRAD data Processing and ddRAD Analyses](https://github.com/NathanaeldHerrera/Chipmunk-phylogenomics/blob/main/1.%20ddRAD%20Processing%20and%20Analyses/ddRAD_Procesing_%26_Analyses.md)
-2. [WGS Raw read Processing, Mapping, and QC]()
+2. [WGS Raw read Processing, Mapping, and QC](https://github.com/NathanaeldHerrera/Chipmunk-phylogenomics/blob/main/2.%20WGS%20Raw%20read%20Processing%2C%20Mapping%2C%20and%20QC/clean-map-QC.md)
