@@ -1,5 +1,5 @@
 # Western Chipmunk Phylogenomics Project
-Pipeline describing raw read processing through variant discovery, and phylogenetic analysis of western chipmunks for both ddRADseq and whole genome sequence data. We performed species tree inference, estimated hybridization with species network inference, and summary statistics (D-statistics, fraction of admixture, admixture proportion).
+Pipeline describing the analysis pipelines used in Herrera et al. (in prep) "Phylogenomics, reproductive trait evolution, and environmental niche modeling reveals a complex history of cryptic speciation and hybridization in chipmunks".This pipeline outlines raw read processing through variant discovery, phylogenetic analysis of western chipmunks for both ddRAD-seq and whole genome sequence data. Here, we performed enivirnmental nich modeling, analysis of bacular morphology (a key reproductive morphological trait), species tree inference, estimate hybridization with species network inference, and summary statistics (D-statistics).
 
 In each section bellow, I describe the pipeline used in a markdown file (follow links below). Scripts referenced in each section can be found inside the respective folders.
 
