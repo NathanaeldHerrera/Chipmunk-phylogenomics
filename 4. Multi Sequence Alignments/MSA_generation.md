@@ -12,7 +12,7 @@ I added all of the single sample FASTA to a single directory and then call the R
 ```
 Rscript BioConduct_Contig.aln.R
 ```
-After running this, we now have scaffold level MSAs that do not require any downstream alignment tools because the coordinate system is retained across all samples. 
+We now have scaffold level MSAs that do not require any downstream alignment tools because the coordinate system is retained across all samples. 
 
 For each scaffold we use msa_split from the [phast](https://academic.oup.com/bib/article/12/1/41/244593?login=true) software package, to split each scaffold into 50 kb "gene tree" windows (we also analysed 100 kb windows but found no difference in results).
 
