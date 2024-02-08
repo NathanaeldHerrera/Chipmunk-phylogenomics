@@ -7,7 +7,8 @@ We will also treat the X-linked scaffolds and autosomes seperately. For our refe
 
 To begin, we are going to create per scaffold MSAs. We can do this quite easily because we have single sample FASTA files that all share the exact same coordinate system as the original reference (see previous section Variant Discovery and FASTA Consensus). Therefore, we can just create a per scaffold alignment using a custom R script that will take each FASTA file and split out each scaffold and then cat to a new scaffold MSA for each individual. 
 
-I added all of the single sample FASTA to a single directory and the call:
+I added all of the single sample FASTA to a single directory and then call the R script [BioConduct_Contig.aln.R]()
+Requires R 3.4
 ```
 Rscript BioConduct_Contig.aln.R
 ```
