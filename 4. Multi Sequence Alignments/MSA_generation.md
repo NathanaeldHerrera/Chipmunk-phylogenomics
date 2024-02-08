@@ -49,6 +49,6 @@ AMAS.py concat -f fasta -d dna -i *.fasta --part-format raxml -u phylip -t tamia
 ```
 For X-linked scaffolds:
 ```
-AMAS.py concat -f fasta -d dna -i *.fasta --part-format raxml -u phylip -t phyllotis_45ind_X-linked_trim75.phylip
+AMAS.py concat -f fasta -d dna -i *.fasta --part-format raxml -u phylip -t tamias_12ind_X-linked_trim75.phylip
 ```
 Now, we have gene tree alignments for gene tree analyses and species delimitation as well as a concatenated alignments for autosomes and X-linked scaffolds for ML analyses.
