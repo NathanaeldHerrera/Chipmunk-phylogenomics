@@ -111,16 +111,19 @@ such as:
 First, I generate the metric files using VCFTools:
 ```
 # Calculate mean depth per individual
-vcftools --gzvcf populations.snps.vcf --depth --out ./vcf_stats/tamias_178Ind_pop_raw
+vcftools --gzvcf populations.snps.vcf.gz --depth --out ./vcf_stats/tamias_178Ind_pop_raw
 
 #Calculate proportion of missing data per individual
-vcftools --gzvcf populations.snps.vcf --missing-indv --out ./vcf_stats/tamias_178Ind_pop_raw
+vcftools --gzvcf populations.snps.vcf.gz --missing-indv --out ./vcf_stats/tamias_178Ind_pop_raw
 
 # Calculate mean depth per site
-vcftools --gzvcf populations.snps.vcf --site-mean-depth --out ./vcf_stats/tamias_178Ind_pop_raw
+vcftools --gzvcf populations.snps.vcf.gz --site-mean-depth --out ./vcf_stats/tamias_178Ind_pop_raw
 
 # Calculate proportion of missing data per site
-vcftools --gzvcf populations.snps.vcf --missing-site --out ./vcf_stats/tamias_178Ind_pop_raw
+vcftools --gzvcf populations.snps.vcf.gz --missing-site --out ./vcf_stats/tamias_178Ind_pop_raw
+
+# Calculate per site (Phred based) quality
+vcftools --gzvcf populations.snps.vcf.gz --site-quality --out ./vcf_stats/tamias_178Ind_pop_raw
 ```
 Next we can use R to plot the results to detect outliers and set DP/ missingness cutoffs using the emperical distributions.
 
