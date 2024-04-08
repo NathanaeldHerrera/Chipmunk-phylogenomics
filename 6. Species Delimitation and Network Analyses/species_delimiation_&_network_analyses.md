@@ -1,4 +1,4 @@
-## Speices Tree and Network Analyses
+# Speices Tree and Network Analyses
 This pipeline outlines the three approaches I used to explore fine-scale patterns of gene tree-species tree discordance under a multispecies-coalescent model.
 For ASTRAL and MP-EST, I used the gene trees where coordinate is retained from the previous section: [gene tree analysis](). Again, we analyze both atuosomal and X-linked scaffolds seperately.
 
@@ -30,7 +30,7 @@ We also want to collapse branches with excessively low bootstrap support. For th
 nw_ed tamias_50KB_conTrees_autosomes.tre 'i & b<=10' o > tamias_50KB_conTrees_autosomes_BS10.tre
 nw_ed tamias_50KB_conTrees_x-linked.tre 'i & b<=10' o > tamias_50KB_conTrees_x-linked_BS10.tre
 ```
-# A note about ASTRAL output:
+ASTRAL output options:
 Alternative posteriors only (-t 4): When this option is used, ASTRAL outputs three local posterior 
 probabilities: one for the main topology, and one for each of the two alternatives (RS|LO and RO|LS, in that order). 
 The posterior of the three topologies adds up to one. This is because of our locality assumption, 
@@ -44,7 +44,7 @@ f1, f2, f3: these are the total number of quartet trees in all the gene trees 
 pp1, pp2, pp3: these are the local posterior probabilities (as defined in the description of -t 4) for the main topology, the first alternative, and the second alternative, respectively.
 QC: this is the total number of quartets defined around each branch.
 EN: the effective number of genes for the branch.
-# Autosomes 
+### Autosomes 
 Lineage Tree:
 ```
 astral -t 4 -i tamias_50KB_conTrees_autosomes_BS10.tre -o tamias_50KB_autosomes_BS10_ASTRAL_LineageTree.tre | tee tamias_50KB_autosomes_BS10_ASTRAL_LineageTree.log
@@ -58,3 +58,12 @@ For the species, we have multiple individuals from the same species. In this cas
 species_name1:individual_1,individual_2,...
 species_name2:individual_1,individual_2,...
 
+### X-linked scaffolds 
+Lineage Tree:
+```
+astral -t 4 -i tamias_50KB_conTrees_x-linked_BS10.tre -o tamias_50KB_x-linked_BS10_ASTRAL_LineageTree.tre | tee tamias_50KB_x-linked_BS10_ASTRAL_LineageTree.log
+```
+Species Tree:
+```
+astral -t 4 -i tamias_50KB_conTrees_x-linked_BS10.tre -a 12ind_species_list.txt -o tamias_50KB_x-linked_BS10_ASTRAL_SpeciesTree.tre | tee tamias_50KB_x-linked_BS10_ASTRAL_SpeciesTree.log
+```
