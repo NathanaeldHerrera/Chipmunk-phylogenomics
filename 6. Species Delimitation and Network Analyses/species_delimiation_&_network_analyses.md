@@ -9,8 +9,10 @@ For ASTRAL, we want unrooted gene trees.
 
 To unroot gene trees we can use the R package [Ape](https://cran.r-project.org/web/packages/ape/)
 ```
+#!/usr/bin/env Rscript
 library(ape)
-tree_list<-list.files(pattern="*contree")
+
+tree_list<-list.files(pattern="*contree") #rooted gene trees from IQ-Tree
  
 for (i in 1:length(tree_list)){
     tr_i<-read.tree(tree_list[i])
@@ -66,4 +68,24 @@ astral -t 4 -i tamias_50KB_conTrees_x-linked_BS10.tre -o tamias_50KB_x-linked_BS
 Species Tree:
 ```
 astral -t 4 -i tamias_50KB_conTrees_x-linked_BS10.tre -a 12ind_species_list.txt -o tamias_50KB_x-linked_BS10_ASTRAL_SpeciesTree.tre | tee tamias_50KB_x-linked_BS10_ASTRAL_SpeciesTree.log
+```
+
+## MP-EST
+
+```
+for i in *.contree_nBS.tree;
+do
+        name1=${i%.*};
+        name2=${name1%_*};
+        name3=${name2%.*};
+        name4=${name3%.*};
+nw_reroot -l "$name4".fa.contree_nBS.tree JPJ2177 JPJ412 > "$name4"_nBS_rooted.tre
+done
+```
+```
+find . -name "*tre" -exec cat '{}' ';' > phyllotis_mpest_conTrees_autosomes.tre
+```
+# calling using v2.1
+```
+./mpest tamias_control_speciesTree
 ```
