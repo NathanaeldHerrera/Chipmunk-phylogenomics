@@ -1,4 +1,4 @@
-# Process raw reads with [FastP](https://github.com/OpenGene/fastp)
+## Process raw reads with [FastP](https://github.com/OpenGene/fastp)
 ```
 for i in *1.fastq.gz;
 do
