@@ -7,7 +7,7 @@ Assuming sets of independent and accurately estimated gene trees, ASTRAL estimat
 
 For ASTRAL, we want unrooted gene trees.
 
-To unroot gene trees we can use the R package [Ape](https://cran.r-project.org/web/packages/ape/) as implemented in the R script [ape_unroot_geneTrees.R](). To run this, call script in the directory containing all .contree gene tree files from IQ-Tree.
+To unroot gene trees we can use the R package [Ape](https://cran.r-project.org/web/packages/ape/) as implemented in the R script [ape_unroot_geneTrees.R](https://github.com/NathanaeldHerrera/Chipmunk-phylogenomics/blob/main/6.%20Species%20Delimitation%20and%20Network%20Analyses/ape_unroot_geneTrees.R). To run this, call script in the directory containing all .contree gene tree files from IQ-Tree.
 
 Create a list of all gene trees for X-linked and autos:
 ```
