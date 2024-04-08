@@ -14,41 +14,32 @@ Rscript BioConduct_Contig.aln.R
 ```
 We now have scaffold level MSAs that do not require any downstream alignment tools because the coordinate system is retained across all samples. 
 
-For each scaffold we use msa_split from the [phast](https://academic.oup.com/bib/article/12/1/41/244593?login=true) software package, to split each scaffold into 50 kb "gene tree" windows (we also analysed 100 kb windows but found no difference in results).
-
+For downstream analyses, I want to exclude any scaffold that is smaller than 10 mb. This retains a majority of the genome but excludes a lot of the small fragments from the assembly.
 ```
-for i in *.fasta;
+for i in *.fa ;
 do
-        name1=${i%.*}; 
-        msa_split -i FASTA -o FASTA -r "$name1"_50kb --windows 50000,0 "$name1".fasta
+    name1=${i%_*};
+bioawk -c fastx 'length($seq) >9999999 {print ">"$name"\n"$seq}' "$name1".fasta > "$name1".fa
 done
 ```
-Next we will us [AMAS](https://github.com/marekborowiec/AMAS) to trim each 50 kb window to include only sites with 75% or greater sample coverage. 
+
+Next we will us [AMAS](https://github.com/marekborowiec/AMAS) to trim each scaffold level MSA to include only sites with 75% or greater sample coverage (Meaning, a site must have at least 75% or in our case, 9 of the 12 individuals, represented at a given site). 
 ```
 for i in *.fa;
 do
         name1=${i%.*};
         name2=${name1%.*};
-        AMAS.py trim -t 0.75 -f fasta -d dna -u fasta -i "$name2".fasta -o "$name2"_trim.75.fa
+        AMAS.py trim -t 0.75 -f fasta -d dna -u fasta -i "$name2".fa -o "$name2"_trim.75.fa
 done
 ```
-At this point, I want to exclude any 50 kb window that has fewer than 25 kb sites after trimming. 
-```
-for i in *.fa ;
-do
-    name1=${i%_*};
-bioawk -c fastx 'length($seq) >99999 {print ">"$name"\n"$seq}' "$name1"_0.75trim.fa > "$name1"_0.75trim.fasta
-done
-```
-
-This results in ready to analzye gene tree MSAs using IQ-Tree (see phylogenetic analyses section). Before we move on, we also want to create concatenated sequence alignments for the autosomal scaffolds and X-linked scaffolds for ML concat analysis. This is easy to do using AMAS:
+Next, we can create concatenated sequence alignments for the autosomal scaffolds and X-linked scaffolds for ML concat analysis. This is easy to do using AMAS:
 
 For autosomal:
 ```
-AMAS.py concat -f fasta -d dna -i *.fasta --part-format raxml -u phylip -t tamias_12ind_auto_trim75.phylip
+AMAS.py concat -f fasta -d dna -i *.fa --part-format raxml -u phylip -t tamias_12ind_auto_trim75.phylip
 ```
 For X-linked scaffolds:
 ```
-AMAS.py concat -f fasta -d dna -i *.fasta --part-format raxml -u phylip -t tamias_12ind_X-linked_trim75.phylip
+AMAS.py concat -f fasta -d dna -i *.fa --part-format raxml -u phylip -t tamias_12ind_X-linked_trim75.phylip
 ```
 Now, we have gene tree alignments for gene tree analyses and species delimitation as well as a concatenated alignments for autosomes and X-linked scaffolds for ML analyses.
