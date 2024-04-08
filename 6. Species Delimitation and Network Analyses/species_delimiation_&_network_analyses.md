@@ -61,7 +61,9 @@ astral -t 4 -i tamias_50KB_conTrees_x-linked_BS10.tre -a 12ind_species_list.txt 
 ## MP-EST
 MP-EST uses the frequency of triplets of taxa among the gene trees to estimate the topology and branch lengths of the overall species tree. See [Lue et al. 2010]() for the theory behind MP-EST.
 
-MP-EST takes in gene tree topologies without branch support. To do so, we will use the R script [ape_strip_BS.R] to remove the branch support from the IQ-Tree gene trees. 
+MP-EST takes in gene tree topologies without branch support. To do so, we will use the R script [ape_strip_BS.R](https://github.com/NathanaeldHerrera/Chipmunk-phylogenomics/blob/main/6.%20Species%20Delimitation%20and%20Network%20Analyses/ape_strip_BS.R) to remove the branch support from the IQ-Tree gene trees. 
+
+MP-EST takes ROOTED gene trees. NOTE, you can specify whether or not to root trees in IQ-Tree. IF you have unrooted topologies, you do not need to unroot with R script. IF you need to re-root gene trees, this can be done easily with newick_utils:
 ```
 for i in *.contree_nBS.tree;
 do
@@ -72,10 +74,15 @@ do
 nw_reroot -l "$name4".fa.contree_nBS.tree JPJ2177 JPJ412 > "$name4"_nBS_rooted.tre
 done
 ```
+create a list of gene trees for MP-EST
 ```
-find . -name "*tre" -exec cat '{}' ';' > phyllotis_mpest_conTrees_autosomes.tre
+find . -name "*tre" -exec cat '{}' ';' > tamis_mpest_conTrees_autosomes_nBS_rooted.tre
+find . -name "*tre" -exec cat '{}' ';' > tamis_mpest_conTrees_x-linked_nBS_rooted.tre
 ```
-# calling using v2.1
+Run using v2.1
 ```
 ./mpest tamias_control_speciesTree
 ```
+
+## SVDquartets
+SVDquartets assesses support for quartets of taxa directly from site-pattern frequencies of variable sites only. This approach differs from summary methods, such as ASTRAL and MP-EST, because it does not independently estimate gene trees, avoiding the issue of gene-tree estimation error. For the theory behind SVDQ see [Chifman and Kubatko 2014](https://academic.oup.com/bioinformatics/article/30/23/3317/206559?login=true).
