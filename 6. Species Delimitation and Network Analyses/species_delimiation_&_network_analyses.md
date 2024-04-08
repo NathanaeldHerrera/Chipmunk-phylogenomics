@@ -59,7 +59,9 @@ astral -t 4 -i tamias_50KB_conTrees_x-linked_BS10.tre -a 12ind_species_list.txt 
 ```
 
 ## MP-EST
+MP-EST uses the frequency of triplets of taxa among the gene trees to estimate the topology and branch lengths of the overall species tree. See [Lue et al. 2010]() for the theory behind MP-EST.
 
+MP-EST takes in gene tree topologies without branch support. To do so, we will use the R script [ape_strip_BS.R] to remove the branch support from the IQ-Tree gene trees. 
 ```
 for i in *.contree_nBS.tree;
 do
