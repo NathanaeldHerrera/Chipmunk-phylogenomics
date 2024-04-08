@@ -1,4 +1,3 @@
-#!/usr/bin/env Rscript
 library(ape)
 
 tree_list<-list.files(pattern="*contree") #rooted gene trees from IQ-Tree
