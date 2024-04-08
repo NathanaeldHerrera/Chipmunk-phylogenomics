@@ -1,4 +1,4 @@
-## Multi sequence alignments 
+# Multi sequence alignments 
 Here, we will create mutli sequence alignments (MSA) for phylogenetic analyses. There are two primary parts to MSA creation
 1) MSA for Maximum Likelihood analysis of the concatenated data set. 
 2) MSAs for gene tree analyses. 
