@@ -1,4 +1,4 @@
-## Gene Tree Alignments and Analysis
+# Gene Tree Alignments and Analysis
 This pipeline is designed to create gene tree alignments from the Tamias WGS data where coordinates will be preserved across the genome.
 We are using a 50 kb stepped intervals across each scaffold (for those that are 10 mb or larger).
 
