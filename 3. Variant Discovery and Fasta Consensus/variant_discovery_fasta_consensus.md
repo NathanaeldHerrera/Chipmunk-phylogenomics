@@ -185,3 +185,5 @@ do
         grep -v ">" "$name2"_consensus.masked.fa | wc | awk '{print $3-$1}'
 done
 ```
+
+#### Go back to [main page](https://github.com/NathanaeldHerrera/Chipmunk-phylogenomics/tree/main)
