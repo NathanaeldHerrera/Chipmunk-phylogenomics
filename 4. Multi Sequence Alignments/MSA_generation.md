@@ -43,3 +43,6 @@ For X-linked scaffolds:
 AMAS.py concat -f fasta -d dna -i *.fa --part-format raxml -u phylip -t tamias_12ind_X-linked_trim75.phylip
 ```
 Now, we have gene tree alignments for gene tree analyses and species delimitation as well as a concatenated alignments for autosomes and X-linked scaffolds for ML analyses.
+
+#### Go back to [main page](https://github.com/NathanaeldHerrera/Chipmunk-phylogenomics/tree/main)
+
