@@ -112,3 +112,5 @@ done
 ```
 rm *_PE.ba* *_SE.ba* *_ME.ba* *_addRG.ba* *deduped.ba*
 ```
+
+#### Go back to [main page](https://github.com/NathanaeldHerrera/Chipmunk-phylogenomics/tree/main)
