@@ -313,4 +313,4 @@ We used HyDe to detect hybridization under the invariants framework of SVDquarte
 run_hyde.py -i HyDe_SNP.filtered.172ind.100bp.thin.phy -m hyde_popMap_5sp.txt -o minimus -n 172 -t 5 -s 47537
 ```
 
-### Go back to [main page](https://github.com/NathanaeldHerrera/Chipmunk-phylogenomics/tree/main)
+#### Go back to [main page](https://github.com/NathanaeldHerrera/Chipmunk-phylogenomics/tree/main)
