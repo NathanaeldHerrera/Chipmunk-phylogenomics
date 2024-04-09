@@ -86,3 +86,5 @@ Run using v2.1
 
 ## SVDquartets
 SVDquartets assesses support for quartets of taxa directly from site-pattern frequencies of variable sites only. This approach differs from summary methods, such as ASTRAL and MP-EST, because it does not independently estimate gene trees, avoiding the issue of gene-tree estimation error. For the theory behind SVDQ see [Chifman and Kubatko 2014](https://academic.oup.com/bioinformatics/article/30/23/3317/206559?login=true).
+
+#### Go back to [main page](https://github.com/NathanaeldHerrera/Chipmunk-phylogenomics/tree/main)
