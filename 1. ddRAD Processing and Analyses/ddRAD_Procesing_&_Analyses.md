@@ -108,7 +108,7 @@ gstacks \
     -I ./final_aligned_bams \  # Input directory containing the aligned BAM files.
     -O ./stacks/gstacks_2 \  # Output directory where gstacks will save the results.
     -M ./tamias_popmap.txt \  # Population map file that specifies sample and population assignments.
-    -t 24  # Number of threads to use for processing (24 in this case).
+    -t 24  # Number of threads to use for processing.
 ```
 ## Population genetic analyses
 Run populations to summarize genetic data from stacks created by gstacks.
@@ -123,7 +123,7 @@ populations \
    --hwe \  # Include Hardy-Weinberg Equilibrium tests in the output.
    --smooth \  # Apply smoothing to allele frequency estimates.
    --bootstrap \  # Perform bootstrap analysis to assess the robustness of estimates.
-   --fstats \  # Calculate F-statistics (e.g., FST).
+   --fstats \  # Calculate F-statistics.
    --vcf \  # Generate a VCF file with the results.
    --phylip-var  # Output a PHYLIP file with variance information.
 ```
