@@ -16,7 +16,7 @@ thexb --minifastas \
   -o ./outdir \
   --window_size 100kb
 ```
-Now, we can use [TrimAL](), to trim our 50 kb alignments. I am using a gap threashold of 0.75 and a minimum sequence length of 50 kb and specify to drop filtered windows. 
+Now, we can use [TrimAL](https://vicfero.github.io/trimal/), to trim our 50 kb alignments. I am using a gap threashold of 0.75 and a minimum sequence length of 50 kb and specify to drop filtered windows. 
 ```
 thexb --trimal \
   -i ./outdir/windowed_fastas \
