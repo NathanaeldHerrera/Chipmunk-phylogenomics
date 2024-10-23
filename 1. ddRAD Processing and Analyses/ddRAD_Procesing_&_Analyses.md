@@ -39,8 +39,7 @@ do
 done
 ```
 ## Raw read mapping 
-Our final raw reads were mapped to the T. minimus V1 reference using [BWA-mem][Uploading General_notes 2.txt…]()
-(https://academic.oup.com/bioinformatics/article/25/14/1754/225615?login=true)
+Our final raw reads were mapped to the T. minimus V1 reference using [BWA-mem](https://academic.oup.com/bioinformatics/article/25/14/1754/225615?login=true)
 ```
 # Loop through all files that match the pattern *1.fq.gz in the current directory.
 for i in *1.fq.gz; do
