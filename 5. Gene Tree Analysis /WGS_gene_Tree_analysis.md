@@ -1,10 +1,10 @@
 # Gene Tree Alignments and Analysis
 This pipeline is designed to create gene tree alignments from the Tamias WGS data where coordinates will be preserved across the genome.
-We are using a 50 kb stepped intervals across each scaffold (for those that are 10 mb or larger).
+We are using 100 kb stepped intervals across each scaffold (for those that are 10 mb or larger).
 
 There are a few ways to do this. More recently, I have incorportated the Tree House Explorer (THEx) pipleine created by [Sam Harris](http://www.eutherialab.org/treehouseexplorer/) of the [Murphy lab](http://www.eutherialab.org/) into my workflow as it is well documented and can streamline many elements.
 
-For our referenece, X-linked scaffolds are scf 102, scf 163, and scf 370. For all analayses, we treat the X-linked scaffolds seperately from the autosomes. 
+For our referenece, X-linked scaffolds are scf 102, scf 163, and scf 370 (excluded to being < 10 Mb). For all analayses, we treat the X-linked scaffolds seperately from the autosomes. 
 
 First, we will generate 50 kb stepped windows across each scaffold. This will retain coordinate possition. For THEx, All of these steps can be incorporated into a single config file. For simplicity and claritry, I show each step here as an individual unit. 
 
