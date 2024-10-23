@@ -12,9 +12,20 @@ I have a barcode file for each library formatted with 2 columns (no headers) as:
 
 For our PE sequence data I used the following command to demultiplex and pre-process ddRADs
 ```
-for i in *;
-do
-	process_radtags -P -p ./raw/"$i" -b ./barcodes/"$i"_barcodes.txt -o ./samples/"$i" -q -r --inline_index --barcode-dist-2 2 --renz_1 sbfI --renz_2 mspI
+   # Loop through all items in the current directory.
+for i in *; do
+    # Run the process_radtags command for each item.
+    process_radtags \
+        -P \  # Use paired-end processing.
+        -p ./raw/"$i" \  # Input path for raw data files, using the current item as the directory name.
+        -b ./barcodes/"$i"_barcodes.txt \  # Barcode file corresponding to the current item.
+        -o ./samples/"$i" \  # Output directory for processed samples, named after the current item.
+        -q \  # Enable quiet mode (suppress output).
+        -r \  # Remove uncalled bases.
+        --inline_index \  # Use inline index for barcoding.
+        --barcode-dist-2 2 \  # Allow two mismatches in barcode comparison.
+        --renz_1 sbfI \  # First restriction enzyme (sbfI).
+        --renz_2 mspI  # Second restriction enzyme (mspI).
 done
 ```
 PCR duplicates were then removed using a custom Python script ([ddRad_pcr_deduper.py](https://github.com/NathanaeldHerrera/Chipmunk-phylogenomics/blob/main/1.%20ddRAD%20Processing%20and%20Analyses/ddRad_pcr_deduper.py)) from [Peterson et al. 2012](https://pubmed.ncbi.nlm.nih.gov/22675423/)
@@ -28,32 +39,45 @@ do
 done
 ```
 ## Raw read mapping 
-Our final raw reads were mapped to the T. minimus V1 reference using [BWA-mem](https://academic.oup.com/bioinformatics/article/25/14/1754/225615?login=true)
+Our final raw reads were mapped to the T. minimus V1 reference using [BWA-mem][Uploading General_notes 2.txt…]()
+(https://academic.oup.com/bioinformatics/article/25/14/1754/225615?login=true)
 ```
-for i in *1.fq.gz;
-do
-   name1=$(echo $i | cut -d '.' -f 1);
-if [ ! -f "$name1"_PE.bam ]
- then
-   echo "running"
-   bwa mem -M -t 6 ./minimusNDH064_pseudohap.fasta "$name1".1.fq.gz "$name1".2.fq.gz | samtools view -Sb - > "$name1"_PE.bam 
- fi
- done
+# Loop through all files that match the pattern *1.fq.gz in the current directory.
+for i in *1.fq.gz; do
+    # Extract the base name by removing the file extension.
+    name1=$(echo $i | cut -d '.' -f 1)
+    
+    # Check if the corresponding BAM file does not already exist.
+    if [ ! -f "$name1"_PE.bam ]; then
+        echo "running"  # Print a message indicating the process is starting.
+
+        # Run BWA to align reads, specifying the reference genome and input FASTQ files.
+        bwa mem -M -t 6 ./minimusNDH064_pseudohap.fasta "$name1".1.fq.gz "$name1".2.fq.gz | \
+        samtools view -Sb - > "$name1"_PE.bam  # Convert the output to BAM format.
+    fi
+done
+
 ```
-Add RG to bams:
+Use Picard to add or replace read groups in the BAM file.
 - fields will change depending on sequencing run.
 ```
-for i in *_PE.bam;
-do
-   name1=${i%_*};
-   name2=$(echo $name1 | cut -d '/' -f 2);
-   
-if [ ! -f "$name1"_PE.addRG.bam ]
- then
-   echo "running"
-   picard AddOrReplaceReadGroups -I "$name1"_PE.bam -O "$name1"_PE.addRG.bam -SO coordinate -RGID E00558 -LB tamias_ddRAD -PL illumina -PU misc -SM $name2 -VALIDATION_STRINGENCY LENIENT
- fi
- done
+for i in *_PE.bam; do
+    name1=${i%_*}
+    name2=$(echo $name1 | cut -d '/' -f 2)
+    if [ ! -f "$name1"_PE.addRG.bam ]; then
+        echo "running"
+        picard AddOrReplaceReadGroups \
+            -I "$name1"_PE.bam \  # Input BAM file.
+            -O "$name1"_PE.addRG.bam \  # Output BAM file with added read groups.
+            -SO coordinate \  # Sort order for the output file.
+            -RGID E00558 \  # Read group ID.
+            -LB tamias_ddRAD \  # Library name.
+            -PL illumina \  # Platform (e.g., Illumina).
+            -PU misc \  # Platform unit.
+            -SM $name2 \  # Sample name (derived from the file path).
+            -VALIDATION_STRINGENCY LENIENT  # Validation setting for processing.
+    fi
+done
 ```
 Next, we will sort and index our final bam files.
 ```
@@ -69,7 +93,7 @@ do
    samtools index "$name1"_final.bam
 done
 ```
-## Genotyping sites using gstacks
+## Run gstacks to assemble stacks of RAD tags from aligned BAM files.
 We provide a population map file (tamias_popmap.txt) defining our metapopulations for genotyping. It is formatted as:
 
 |        |       |
@@ -82,24 +106,28 @@ We provide a population map file (tamias_popmap.txt) defining our metapopulation
 |...     | ...   |
 
 ```
-gstacks -I ./final_aligned_bams -O ./stacks/gstacks_2 -M ./tamias_popmap.txt -t 24
+gstacks \
+    -I ./final_aligned_bams \  # Input directory containing the aligned BAM files.
+    -O ./stacks/gstacks_2 \  # Output directory where gstacks will save the results.
+    -M ./tamias_popmap.txt \  # Population map file that specifies sample and population assignments.
+    -t 24  # Number of threads to use for processing (24 in this case).
 ```
 ## Population genetic analyses
-We will use populations to generate various call files (VCF,etc) for population genetic analyses
+Run populations to summarize genetic data from stacks created by gstacks.
 ```
 populations \
-   -P gstacks_RefMap \
-   -O populations_RefMap \
-   -M tamias_popmap5sp.txt \
-   -p 5 \
-   -r 0.5 \
-   -t 12 \
-   --hwe \
-   --smooth \
-   --bootstrap \
-   --fstats \
-   --vcf \
-   --phylip-var
+   -P gstacks_RefMap \  # Input directory containing the output from gstacks.
+   -O populations_RefMap \  # Output directory where results will be saved.
+   -M tamias_popmap5sp.txt \  # Population map file that specifies sample and population assignments.
+   -p 5 \  # Minimum number of individuals required to call a locus.
+   -r 0.5 \  # Minimum frequency threshold for a locus to be included (50% in this case).
+   -t 12 \  # Number of threads to use for processing.
+   --hwe \  # Include Hardy-Weinberg Equilibrium tests in the output.
+   --smooth \  # Apply smoothing to allele frequency estimates.
+   --bootstrap \  # Perform bootstrap analysis to assess the robustness of estimates.
+   --fstats \  # Calculate F-statistics (e.g., FST).
+   --vcf \  # Generate a VCF file with the results.
+   --phylip-var  # Output a PHYLIP file with variance information.
 ```
 ## Before moving on I want to assess some QC metrics
 such as:
@@ -110,20 +138,31 @@ such as:
 
 First, I generate the metric files using VCFTools:
 ```
-# Calculate mean depth per individual
-vcftools --gzvcf populations.snps.vcf.gz --depth --out ./vcf_stats/tamias_178Ind_pop_raw
+# Calculate depth statistics for the VCF file .
+vcftools --gzvcf populations.snps.vcf.gz \
+    --depth \
+    --out ./vcf_stats/tamias_178Ind_pop_raw
 
-#Calculate proportion of missing data per individual
-vcftools --gzvcf populations.snps.vcf.gz --missing-indv --out ./vcf_stats/tamias_178Ind_pop_raw
+# Calculate the proportion of missing data per individual.
+vcftools --gzvcf populations.snps.vcf.gz \
+    --missing-indv \
+    --out ./vcf_stats/tamias_178Ind_pop_raw
 
-# Calculate mean depth per site
-vcftools --gzvcf populations.snps.vcf.gz --site-mean-depth --out ./vcf_stats/tamias_178Ind_pop_raw
+# Calculate the mean depth per site.
+vcftools --gzvcf populations.snps.vcf.gz \
+    --site-mean-depth \
+    --out ./vcf_stats/tamias_178Ind_pop_raw
 
-# Calculate proportion of missing data per site
-vcftools --gzvcf populations.snps.vcf.gz --missing-site --out ./vcf_stats/tamias_178Ind_pop_raw
+# Calculate the proportion of missing data per site.
+vcftools --gzvcf populations.snps.vcf.gz \
+    --missing-site \
+    --out ./vcf_stats/tamias_178Ind_pop_raw
 
-# Calculate per site (Phred based) quality
-vcftools --gzvcf populations.snps.vcf.gz --site-quality --out ./vcf_stats/tamias_178Ind_pop_raw
+# Calculate per-site (Phred-based) quality.
+vcftools --gzvcf populations.snps.vcf.gz \
+    --site-quality \
+    --out ./vcf_stats/tamias_178Ind_pop_raw
+
 ```
 Next we can use R to plot the results to detect outliers and set DP/ missingness cutoffs using the emperical distributions.
 
@@ -132,17 +171,35 @@ See [vcf_QC_metrics_plot.r](https://github.com/NathanaeldHerrera/Chipmunk-phylog
 ## Phylogenetic Analysis
 We first will apply some basic filtering to clean up our final alignment:
 ```
-vcftools --vcf populations.snps.vcf --minDP 5 --minGQ 20 --max-missing 0.50 --max-alleles 2 --recode --recode-INFO-all --out iqTree.snps.filtered
+# Filter a VCF file based on specific criteria and generate a new filtered VCF file.
+vcftools --vcf populations.snps.vcf \  # Input VCF file containing SNPs.
+    --minDP 5 \  # Minimum depth of coverage required for a variant to be included.
+    --minGQ 20 \  # Minimum genotype quality required for a variant to be included.
+    --max-missing 0.50 \  # Maximum proportion of missing data allowed for a site.
+    --max-alleles 2 \  # Maximum number of alleles allowed at any site (biallelic variants only).
+    --recode \  # Recode the VCF file to include only the variants that pass the filters.
+    --recode-INFO-all \  # Retain all INFO fields in the output VCF.
+    --out iqTree.snps.filtered  # Output file prefix for the filtered VCF.
+
 ```
 After filtering, we kept 189 out of 189 Individuals and 310,361 out of a possible 318,618 Sites
 
 We also want to exclude low coverage samples using a > 50% missingness cutoff.
 ```
-vcftools --vcf iqTree.snps.filtered.recode.vcf --missing-indv --out tamias_178Ind_pop
-# This creates a list of those indv. that have more than 50% missing data
-mawk '$5 > 0.5' tamias_189Ind_pop.imiss | cut -f1 > lowDP.indv
+# Calculate the proportion of missing data per individual and output the results.
+vcftools --vcf iqTree.snps.filtered.recode.vcf \
+    --missing-indv \
+    --out tamias_178Ind_pop
 
-vcftools --vcf iqTree.snps.filtered.recode.vcf --remove lowDP.indv --recode --recode-INFO-all --out iqTree.snps.filtered.172ind_Final
+# Filter the results to create a list of individuals with more than 50% missing data.
+mawk '$5 > 0.5' tamias_178Ind_pop.imiss | cut -f1 > lowDP.indv
+
+# Remove individuals with high missing data from the VCF file and create a new filtered VCF.
+vcftools --vcf iqTree.snps.filtered.recode.vcf \
+    --remove lowDP.indv \
+    --recode \
+    --recode-INFO-all \
+    --out iqTree.snps.filtered.172ind_Final
 # Excludes: 17 individuals (172 out of 189)
 ```
 Convert VCF file to a phylip file
@@ -155,10 +212,15 @@ Here are the final stats for this particular analysis:
 172 individuals, alignment length: 358,836 bp 
 
 ```
-iqtree2 -s iqTree.snps.filtered.172ind_Final.recode.min4.phy -m TEST -nt AUTO -pre tamias_172ind_RefMap_iqTree -bb 1000 -alrt 1000
+# Run IQ-TREE to infer a phylogenetic tree.
+iqtree2 -s iqTree.snps.filtered.172ind_Final.recode.min4.phy \  # Input alignment file in PHYLIP format.
+    -m TEST \  # Automatically select the best-fitting substitution model.
+    -nt AUTO \  # Automatically determine the number of threads to use for computation.
+    -pre tamias_172ind_RefMap_iqTree \  # Prefix for output files generated by IQ-TREE.
+    -bb 1000 \  # Perform 1000 bootstrap replicates to assess the reliability of the tree.
+    -alrt 1000  # Perform 1000 SH-aLRT tests for branch support.
+
 ```
--m Test: will test for a model of evolution
--nt AUTO: will determine best number of threads for run.
 Best num threads: 11
 Best model: TVM+F+R5
 
@@ -166,20 +228,25 @@ Best model: TVM+F+R5
 sCF is an additional metric we can use to assess branch support. It is the percentage of phylogentically informative sites that supports
 a branch in the reference tree. 
 ```
-iqtree2 -t tamias_172ind_RefMap_iqTree.contree -s iqTree.snps.filtered.172ind_Final.recode.min4.phy --scf 1000 --prefix tamias_172ind_RefMap_iqTree.sCF
+# Perform a supertree analysis using an existing tree and the corresponding alignment.
+iqtree2 -t tamias_172ind_RefMap_iqTree.contree \  # Input tree file for the supertree analysis.
+    -s iqTree.snps.filtered.172ind_Final.recode.min4.phy \  # Corresponding alignment file in PHYLIP format.
+    --scf 1000 \  # Specify the number of bootstrap replicates for the site Concorance Factor analysis.
+    --prefix tamias_172ind_RefMap_iqTree.sCF  # Prefix for output files generated during the supertree analysis.
 ```
 ## Analysis of Admixture
 First, we will randomly subsample one SNP per locus
 ```
 populations \
-   -P gstacks_RefMap \
-   -O populations_randomSNP \
-   -M tamias_popmap5sp.txt \
-   -p 5 \
-   -r 0.85 \
-   -t 12 \
-   --vcf \
-   --write-random-snp
+   -P gstacks_RefMap \  # Input directory.
+   -O populations_randomSNP \  # Output directory.
+   -M tamias_popmap5sp.txt \  # Population map file that specifies sample and population assignments.
+   -p 5 \  # Minimum number of individuals required to call a locus.
+   -r 0.85 \  # Minimum allele frequency threshold for a locus to be included.
+   -t 12 \  # Number of threads to use for processing.
+   --vcf \  # Generate a VCF file with the results.
+   --write-random-snp  # Include an option to write random SNPs in the output.
+
 ```
 ## Admixture
 Admixture requires a PLINK .bed file and the estimated number of ancestral populations.
@@ -189,8 +256,11 @@ plink --vcf raw.lm.recode.vcf --aec --make-bed --out admix_filtered.SNPs
 ```
 Now we can run ADMIXTURE
 ```
-for K in 2 3 4 5 6 7 8 9 10 11 12 13 14 15 ;
-do admixture --cv admix_filtered.SNPs.bed $K | tee log${K}.out; done
+# Loop through a range of values for K (the number of populations).
+for K in 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do
+    # Run admixture analysis for the current value of K, with cross-validation.
+    admixture --cv admix_filtered.SNPs.bed $K | tee log${K}.out
+done
 ```
 To find best K:
 ```
@@ -202,28 +272,70 @@ For the PCA, I applied (as above) some general filtering using vcftools to remov
 
 Export VCF to Plink format, filter for MAF
 ```
+# Extract unique chromosome identifiers from the VCF file and create a chromosome mapping file.
 bcftools view -H populations.snps.lmDP5g85.recode.vcf | cut -f 1 | uniq | awk '{print $0"\tscf"$0}' > Tamias_MultiSmpl_Filtered.recode.vcf.chrom-map.txt
-vcftools --gzvcf populations.snps.lmDP5g85.recode.vcf  --plink --chrom-map Tamias_MultiSmpl_Filtered.recode.vcf.chrom-map.txt --out Tamias_MultiSmpl_Filtered_plink
 
+# Convert the VCF file to PLINK format using the chromosome mapping file.
+vcftools --gzvcf populations.snps.lmDP5g85.recode.vcf \
+    --plink \
+    --chrom-map Tamias_MultiSmpl_Filtered.recode.vcf.chrom-map.txt \
+    --out Tamias_MultiSmpl_Filtered_plink
+
+# Extract individual IDs from the PLINK PED file and prepare an updated ID file.
 less Tamias_MultiSmpl_Filtered_plink.ped | cut -f 1,2 > Tamias_updateID.158.txt
-plink --file Tamias_MultiSmpl_Filtered_plink --aec --allow-no-sex --update-ids Tamias_updateID.158.txt --make-bed --out Tamias_MultiSmpl_Filtered_plink.newID
 
-### Filter using plink on MAF (only for within population level analyses)
-plink --bfile Tamias_MultiSmpl_Filtered_plink.newID --aec --maf 0.01 --out Tamias_MultiSmpl_Filtered_plink.newID.maf.01 --make-bed
+# Update IDs in the PLINK file and create a new binary PLINK file.
+plink --file Tamias_MultiSmpl_Filtered_plink \
+    --aec \
+    --allow-no-sex \
+    --update-ids Tamias_updateID.158.txt \
+    --make-bed \
+    --out Tamias_MultiSmpl_Filtered_plink.newID
 
-### convert back into a new .ped file
-plink --bfile Tamias_MultiSmpl_Filtered_plink.newID.maf.01 --aec --allow-no-sex --recode --out Tamias_MultiSmpl_Filtered_plink.newID.maf.01
+# Filter the PLINK file based on minor allele frequency (MAF) for within-population analyses.
+plink --bfile Tamias_MultiSmpl_Filtered_plink.newID \
+    --aec \
+    --maf 0.01 \
+    --out Tamias_MultiSmpl_Filtered_plink.newID.maf.01 \
+    --make-bed
+
+# Convert the filtered binary PLINK file back into a new .ped file.
+plink --bfile Tamias_MultiSmpl_Filtered_plink.newID.maf.01 \
+    --aec \
+    --allow-no-sex \
+    --recode \
+    --out Tamias_MultiSmpl_Filtered_plink.newID.maf.01
 ```
 Linkage disequilibrium
 PLINK has several options to estimate linkage disequilibrium (LD), the non-independent segregation of two loci, and filter variants according to certain distances and thresholds.
 For biallelic markers, one of the most commonly used measures for LD is the squared coefficient of correlation (r2) 
 (Hill & Robertson, 1968). It ranges between 0 and 1, where 0 indicates no correlation (= no linkage) and 1 perfect correlation (= perfect linkage disequilibrium).
 ```
-plink --bfile Tamias_MultiSmpl_Filtered_plink.newID --aec --indep-pairwise 1 kb 1 0.8 --out Tamias_MultiSmpl_Filtered_plink.newID.ldkb1r0.8 &> /dev/null
-plink --bfile Tamias_MultiSmpl_Filtered_plink.newID --aec --exclude Tamias_MultiSmpl_Filtered_plink.newID.ldkb1r0.8.prune.out --out Tamias_MultiSmpl_Filtered_plink.newID.ldkb1r0.8 --make-bed
-# convert back into a new .ped file 
-plink --bfile Tamias_MultiSmpl_Filtered_plink.newID.maf.01 --aec --indep-pairwise 1 kb 1 0.8 --out Tamias_MultiSmpl_Filtered_plink.newID.ldkb1r0.8.maf01 &> /dev/null
-plink --bfile Tamias_MultiSmpl_Filtered_plink.newID.maf.01 --aec --exclude Tamias_MultiSmpl_Filtered_plink.newID.ldkb1r0.8.maf01.prune.out --out Tamias_MultiSmpl_Filtered_plink.newID.ldkb1r0.8.maf01 --make-bed
+# Step 1: Perform linkage disequilibrium (LD) pruning on the dataset.
+plink --bfile Tamias_MultiSmpl_Filtered_plink.newID \
+    --aec \
+    --indep-pairwise 1 kb 1 0.8 \
+    --out Tamias_MultiSmpl_Filtered_plink.newID.ldkb1r0.8
+
+# Step 2: Exclude the SNPs identified in the previous step and create a new binary PLINK file.
+plink --bfile Tamias_MultiSmpl_Filtered_plink.newID \
+    --aec \
+    --exclude Tamias_MultiSmpl_Filtered_plink.newID.ldkb1r0.8.prune.out \
+    --out Tamias_MultiSmpl_Filtered_plink.newID.ldkb1r0.8 \
+    --make-bed
+
+# Step 3: Perform LD pruning again on the MAF-filtered dataset.
+plink --bfile Tamias_MultiSmpl_Filtered_plink.newID.maf.01 \
+    --aec \
+    --indep-pairwise 1 kb 1 0.8 \
+    --out Tamias_MultiSmpl_Filtered_plink.newID.ldkb1r0.8.maf01
+
+# Step 4: Exclude the SNPs identified in the previous step from the MAF-filtered dataset.
+plink --bfile Tamias_MultiSmpl_Filtered_plink.newID.maf.01 \
+    --aec \
+    --exclude Tamias_MultiSmpl_Filtered_plink.newID.ldkb1r0.8.maf01.prune.out \
+    --out Tamias_MultiSmpl_Filtered_plink.newID.ldkb1r0.8.maf01 \
+    --make-bed
 ```
 Convert back to vcf file for final PCA analysis
 ```
@@ -237,7 +349,12 @@ To get unlinked snps, we will use bcftools:
 -w prune distance, -n means keep 1 snp per window
 -N rand means select one snp at random in window
 ```
-bcftools +prune -w 100bp -n 1 -N rand -o svdQ_SNP.filtered.172ind.100bp.thin.vcf.gz iqTree_SNP.filtered.172ind.recode.vcf.gz
+bcftools +prune \
+    -w 100bp \                       # Set the window size to 100 base pairs for pruning.
+    -n 1 \                           # Specify to retain only 1 SNP per window.
+    -N rand \                        # Use a random seed for SNP selection within each window.
+    -o svdQ_SNP.filtered.172ind.100bp.thin.vcf.gz \  # Output filename for the filtered VCF.
+    iqTree_SNP.filtered.172ind.recode.vcf.gz          # Input VCF file to be processed.
 ```
 count SNPS in final file
 ```
