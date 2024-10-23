@@ -34,9 +34,9 @@ thexb --iqtree \
   --iqtree_bootstrap 1000 \
   --tv_file_name TreeViewer_input_tamias_file.xlsx
 ```
-This will yeild two outputs. First, we will have ML gene trees that we can use for downstream species tree delimiation approaches (see: section 6. [Species Delimiation]() section) and second, a .xlsx file of each coordinate specific locus tree and the topology. THEx can then be used to rank the topologies and plot them to look at the distribution of locus trees across the geneome. 
+This will yeild two outputs. First, we will have ML gene trees that we can use for downstream species tree delimiation approaches (see: section 6. [Species Delimiation](https://github.com/NathanaeldHerrera/Chipmunk-phylogenomics/blob/main/6.%20Species%20Delimitation%20and%20Network%20Analyses/species_delimiation_%26_network_analyses.md) section) and second, a .xlsx file of each coordinate specific locus tree and the topology. THEx can then be used to rank the topologies and plot them to look at the distribution of locus trees across the geneome. 
 
-I outline the species delimitation pipeline is [section 6](). Here, we will continue with the gene tree analysis in THEx. 
+I outline the species delimitation pipeline is [section 6](https://github.com/NathanaeldHerrera/Chipmunk-phylogenomics/blob/main/6.%20Species%20Delimitation%20and%20Network%20Analyses/species_delimiation_%26_network_analyses.md). Here, we will continue with the gene tree analysis in THEx. 
 
 We now want to assign rank order (the proportion each locus tree topology is represented across our genome) using THEx topobinner.
 ```
