@@ -14,14 +14,14 @@ The directory: multialignmentdir contains each of the scaffold level MSAs genera
 thexb --minifastas \
   -i ./multiAlignmentDir/ \
   -o ./outdir \
-  --window_size 50kb
+  --window_size 100kb
 ```
-Now, we can use [TrimAL](), to trim our 50 kb alignments. I am using a gap threashold of 0.75 and a minimum sequence length of 25 kb and specify to drop filtered windows. 
+Now, we can use [TrimAL](), to trim our 50 kb alignments. I am using a gap threashold of 0.75 and a minimum sequence length of 50 kb and specify to drop filtered windows. 
 ```
 thexb --trimal \
   -i ./outdir/windowed_fastas \
   -o ./outdir \
-  --trimal_min_seq_len 25000bp \
+  --trimal_min_seq_len 50000bp \
   --trimal_gap_threshold 0.75
 ```
 Next, we can run [IQ-Tree](http://www.iqtree.org/doc/) on our individual gene trees.
