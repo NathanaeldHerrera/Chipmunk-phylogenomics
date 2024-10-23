@@ -1,19 +1,20 @@
+# Load necessary libraries
 library(Biostrings)
 library(seqinr)
 
-fastafiles <- list.files(pattern = ".fa") # this will pull any file with a .fa extension
-fastafiles
-### This will iterate through your fasta files and it will pull out each contig from each species file and append them to a 
-### contig specific file. 
-for (fasta in fastafiles) {
-  sample <- readDNAStringSet(fasta)
-  name <- strsplit(fasta, "_")[[1]][1]
-    for(i in names(sample)){
-#      print(sample[i])
-#      print(name) 
-      a <- sample[i]
-#      print(a) 
-      names(a) <- paste(name)
-      writeXStringSet(a, filepath = paste(i, ".fasta", sep = ''), append = TRUE, format="fasta")
+# List all FASTA files in the current directory with a .fa extension
+fastafiles <- list.files(pattern = ".fa") 
+print(fastafiles)  # Display the list of FASTA files
+
+# Iterate through each FASTA file to process the sequences
+for (fasta in fastafiles) {  
+  sample <- readDNAStringSet(fasta) # Read the DNA sequences from the FASTA file
+  name <- strsplit(fasta, "_")[[1]][1] # Extract the sample name from the file name
+  
+  # Loop through each contig (sequence) in the sample
+  for (i in names(sample)) {
+    a <- sample[i] # Extract the specific contig
+    names(a) <- paste(name) # Set the name of the contig
+    writeXStringSet(a, filepath = paste(i, ".fasta", sep = ''), append = TRUE, format = "fasta") # Write the contig to a new FASTA file, appending if it already exists
   }
 }
