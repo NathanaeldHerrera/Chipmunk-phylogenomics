@@ -1,47 +1,63 @@
+# Clear environment
+rm(list = ls())
+
 # Load necessary libraries
-library("gdsfmt")      # For working with GDS files
-library("SNPRelate")   # For SNP analysis
+library(SNPRelate)
+library(tidyverse)
+library(gdsfmt)
+library(RColorBrewer)
 
-# Convert a VCF file to GDS format
-snpgdsVCF2GDS("Tamias_MultiSmpl_Filtered_plink.newID.ldkb1r0.8.maf01.172ind.vcf", 
-              "Tamias_MultiSmpl_Filtered_plink.newID.ldkb1r0.8.maf01.172ind.gds")
+# Set run date
+run_date <- format(Sys.Date(), "%d%b%Y")
 
-# Load in the GDS file
-genofile <- openfn.gds("Tamias_MultiSmpl_Filtered_plink.newID.ldkb1r0.8.maf01.172ind.gds")
+# File paths
+vcf_file <- "Tamias_MultiSmpl_Filtered_plink.newID.ldkb1r0.8.141ind.vcf"
+gds_file <- "Tamias_MultiSmpl_Filtered_plink.newID.ldkb1r0.8.141ind.gds"
+species_file <- "Tamias_141PCA_SpeciesList_noMinimus.txt"
 
-# Perform PCA on the SNP data
-pca <- snpgdsPCA(autosome.only=FALSE, genofile, snp.id=NULL, num.thread=16)
+# Convert VCF to GDS (if not already done)
+snpgdsVCF2GDS(vcf.fn = vcf_file, out.fn = gds_file, method = "biallelic.only")
 
-# Calculate the percentage of variance explained by each principal component
-pc.percent <- pca$varprop * 100
-head(round(pc.percent, 2))  # Display the first few percentages
+# Open GDS file
+genofile <- openfn.gds(gds_file)
 
-# Load population codes from a text file
-pop_code <- scan("Tamias_158PCA_SpeciesList.txt", what=character())
+# Run PCA
+pca <- snpgdsPCA(genofile, autosome.only = FALSE, num.thread = parallel::detectCores())
+pc.percent <- round(pca$varprop * 100, 2)
+print(head(pc.percent))
 
-# Retrieve sample IDs from the GDS file
+# Read sample info
+pop_raw <- scan(species_file, what = character())
+indiv <- sapply(strsplit(pop_raw, ","), `[[`, 2)
+
+# Get sample IDs
 samp.id <- read.gdsn(index.gdsn(genofile, "sample.id"))
 
-# Extract individual names from the population codes
-indiv <- sapply(strsplit(pop_code, split=","), "[[", 2)
-head(cbind(samp.id, indiv))  # Display the first few sample IDs and individual names
+# Create PCA table
+tab <- data.frame(
+  sample.id = pca$sample.id,
+  pop = factor(indiv)[match(pca$sample.id, samp.id)],
+  EV1 = pca$eigenvect[, 1],
+  EV2 = pca$eigenvect[, 2],
+  stringsAsFactors = FALSE)
 
-# Create a data frame to hold PCA results and population information
-tab <- data.frame(sample.id = pca$sample.id,
-                  pop = factor(indiv)[match(pca$sample.id, samp.id)],
-                  EV1 = pca$eigenvect[, 1],  # First eigenvector
-                  EV2 = pca$eigenvect[, 2],  # Second eigenvector
-                  stringsAsFactors = FALSE)
-head(tab)  # Display the first few rows of the data frame
+# Axis labels with explained variance
+xlab_text <- paste0("PC 1 (", pc.percent[1], "%)")
+ylab_text <- paste0("PC 2 (", pc.percent[2], "%)")
 
-# Plot the PCA results
-plot(tab$EV1, tab$EV2, col=as.integer(tab$pop), pch = 19, 
-     xlab="PC 1", ylab="PC 2")
-legend("topright", legend=levels(tab$pop), pch=19, col=1:6)
+# Use RColorBrewer palette
+palette_name <- "Set1"
+n_pop <- length(levels(tab$pop))
+plot_colors <- brewer.pal(min(n_pop, brewer.pal.info[palette_name, "maxcolors"]), palette_name)
 
-# Save the plot to a PDF file
-pdf("dddRAD_172indv.RefMap_FILTERED.SNPRelatePCA.pdf", width = 6, height = 6)
-plot(tab$EV1, tab$EV2, col=as.integer(tab$pop), pch = 20, 
-     xlab="PC 1", ylab="PC 2")  # Make the plot
-legend("bottomleft", legend=levels(tab$pop), pch=19, col=1:4)
-dev.off()  # Close the PDF device
+# Save to PDF
+pdf(file = paste0("dddRAD_131Indv.RefMap_FILTERED.SNPRelatePCA_IC_", run_date, ".pdf"),
+    width = 6, height = 6)
+plot(tab$EV1, tab$EV2, col = plot_colors[as.integer(tab$pop)], pch = 20, cex = 2.5,
+     xlab = xlab_text, ylab = ylab_text, main = "PCA Plot")
+# text(tab$EV1, tab$EV2, labels = tab$sample.id, pos = 3, cex = 0.6)
+legend("topright", legend = levels(tab$pop), pch = 19, col = plot_colors)
+dev.off()
+
+# Close GDS
+snpgdsClose(genofile)
