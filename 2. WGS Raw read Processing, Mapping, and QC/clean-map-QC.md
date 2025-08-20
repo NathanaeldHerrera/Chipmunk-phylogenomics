@@ -3,7 +3,7 @@
 This pipeline automates read cleaning, alignment, QC, quantification, and reporting.
 There are two files, the workflow and a config file for job submission via slurm.
 [clean-map-qc-dna.nf](https://github.com/NathanaeldHerrera/Chipmunk-phylogenomics/blob/main/2.%20WGS%20Raw%20read%20Processing%2C%20Mapping%2C%20and%20QC/clean-map-qc-dna.nf)
-[clean-map-qc-dna.config]()
+[clean-map-qc-dna.config](https://github.com/NathanaeldHerrera/Chipmunk-phylogenomics/blob/main/2.%20WGS%20Raw%20read%20Processing%2C%20Mapping%2C%20and%20QC/clean-map-qc-dna.config)
 
 Steps:
 Fastp – Adapter trimming and quality filtering
