@@ -400,6 +400,6 @@ Sites at which this population is not fixed for the ancestral state are discarde
 --popsFile tamias_150ind_RADs_craA_pops.txt --target derived \
 -t 24 -o Tamias_MultiSmpl_Filtered_plink.newID.ldkb1r0.8.150ind_cra_A_populations.tsv.gz
 ```
-Finally, we can use the Rscript [ddrad_dstat.R]() to calculate site pattern counts, D-stat and calculate Z scores. 
+Finally, we can use the Rscript [ddrad_dstat.R](https://github.com/NathanaeldHerrera/Chipmunk-phylogenomics/blob/main/1.%20ddRAD%20Processing%20and%20Analyses/ddrad_dstats.R) to calculate site pattern counts, D-stat and calculate Z scores. 
 
 #### Go back to [main page](https://github.com/NathanaeldHerrera/Chipmunk-phylogenomics/tree/main)
