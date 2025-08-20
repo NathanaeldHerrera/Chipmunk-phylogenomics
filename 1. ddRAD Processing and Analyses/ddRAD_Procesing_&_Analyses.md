@@ -305,33 +305,17 @@ plink --bfile Tamias_MultiSmpl_Filtered_plink.newID.ldkb1r0.8 --aec --out Tamias
 For PCA anaysis, we are using the R package SNPRelate: See [SNPRelate_PCA.r](https://github.com/NathanaeldHerrera/Chipmunk-phylogenomics/blob/main/1.%20ddRAD%20Processing%20and%20Analyses/SNPrelate_PCA.r)
 
 ## Species Tree Analysis
-We can analyze our ddRAD data using SVDQuartets which estimates a species tree from unlinked SNP data. For SVDQ, we are going to use the same filtered VCF file from IQ-Tree but we want unlinked snps so we will add an extra thinning step
-To get unlinked snps, we will use bcftools:
--w prune distance, -n means keep 1 snp per window
--N rand means select one snp at random in window
-```
-bcftools +prune \
-    -w 100bp \                       # Set the window size to 100 base pairs for pruning.
-    -n 1 \                           # Specify to retain only 1 SNP per window.
-    -N rand \                        # Use a random seed for SNP selection within each window.
-    -o svdQ_SNP.filtered.172ind.100bp.thin.vcf.gz \  # Output filename for the filtered VCF.
-    iqTree_SNP.filtered.172ind.recode.vcf.gz          # Input VCF file to be processed.
-```
-count SNPS in final file
-```
-bcftools view -H svdQ_SNP.filtered.172ind.100bp.thin.vcf.gz | wc -l
-```
-This gives us 47,537 SNPs
-
+We can analyze our ddRAD data using SVDQuartets which estimates a species tree from unlinked SNP data. ### For SVDQ, we are going to use the same filtered VCF file from above
 Safety check, look at missingness per indv.
 ```
-vcftools --gzvcf svdQ_SNP.filtered.172ind.100bp.thin.vcf.gz --missing-indv --out lowDP.indv
+vcftools --gzvcf populations.snps.vcf --missing-indv --out lowDP.indv
 ```
-Convert to nexus for use in PAUP*
+Convert to nexus
 ```
-vcf2phylip.py -i svdQ_SNP.filtered.172ind.100bp.thin.vcf.gz -n
+/home/nh253642e/software/vcf2phylip/vcf2phylip.py -i populations.snps.vcf -n
+grep -rl _final ./populations.snps.vcf | xargs sed -i 's/_final//g'
+cut -d ' ' -f 1 populations.snps.min4.phy
 ```
-
 ## SVDquartets
 SVDquartets is described in [Chifman & Kubatko 2014](https://academic.oup.com/bioinformatics/article/30/23/3317/206559?login=true).
 SVDQ is run through [PAUP*](https://paup.phylosolutions.com/)
@@ -340,11 +324,11 @@ First, we will construct our Paup blocks for two analyses. One will be a lineage
 Lineage Tree paup block: run_svdquartets_ddRads_lineagetree.sh
 ```
 begin paup;
-        log start file=svdQ.172ind.lineageTree.log replace;
-        execute ./svdQ_SNP.filtered.172ind.100bp.thin.min4.nexus;
-   outgroup minimusMSB268068 minimusNDH041 minimusNDH045 minimusNDH063 minimusNDH064 minimusNDH072 minimusNDH084 minimusZM10995 minimusZM11027 minimusZM11417 minimusZM12230 minimusZM12232 minimusZM12233 minimusZM12277 minimusZM13061 minimusZM16544 minimusZM16545;
-        SVDquartets evalQuartets=all bootstrap=yes nreps=1000 nthreads=24 mrpFile=svdQ.172ind.lineageTree_qall_b1000; 
-        savetrees file=svdQ.172ind.lineageTree.b1000.tre format=Newick root=yes supportValues=nodeLabels;
+        log start file=svdQ.158ind.lineageTree.log replace;
+        execute ../populations.snps.min4.nexus;
+   outgroup minimusMSB268068 minimusNDH041 minimusNDH045 minimusNDH063 minimusNDH064 minimusNDH072 minimusNDH084 minimusZM10995 minimusZM11027 minimusZM114>
+        SVDquartets evalQuartets=all bootstrap=yes nreps=1000 nthreads=24 mrpFile=svdQ.158ind.lineageTree_qall_b1000; 
+        savetrees file=svdQ.158ind.lineageTree.b1000.tre format=Newick root=yes supportValues=nodeLabels;
 end;
 ```
 begin paup:
@@ -359,12 +343,12 @@ For the species tree, we first need to create taxa partition. This taxa partioti
 ```
 begin sets;
     taxpartition Tamias_species =
-      amoenus: amoenusFMNH126103 amoenusJMG008 amoenusJMG058 amoenusJMS220 amoenusJRD008 amoenusJRD023 amoenusJRD028 amoenusJRD158 amoenusJRD161 amoenuslutiJMS297 amoenusMSB224396 amoenusMSB224913 amoenusMSB225555 amoenusMSB225676 amoenusMSB227699 amoenusMSB227795 amoenusMSB227882 amoenusMSB228278 amoenusMSB230567 amoenusMSB268064 amoenusMSB268065 amoenusMSB268069 amoenusMSB269634 amoenusMSB269635 amoenusMSB269636 amoenusMSB269638 amoenusMSB269640 amoenusMSB269856 amoenusMSB269857 amoenusMSB269858 amoenusMSB269867 amoenusMSB269868 amoenusMSB269869 amoenusMSB269870 amoenusMSB269871 amoenusMSB269882 amoenusMSB269957 amoenusMSB269966 amoenusMSB274470 amoenusMSB274506 amoenusMSB292133 amoenusMSB292142 amoenusMSB292143 amoenusMSB292145 amoenusNEOR184 amoenusRBCM19566 amoenusRBCM20037 amoenusZM12231 amoenusZM12446 amoenusZM13088 amoenusZM13089 amoenusZM16576 amoenusZM16577 amoenusZM16578 amoenusZM16579 amoenusZM16593 amoenusZM16594 amoenusZM16599,
-      cratericus_A:  cratericusJRD111 cratericusJRD121 cratericusJRD122 cratericusJRD123 cratericusMSB197856 cratericusMSB264026 cratericusMSB269928 cratericusNDH002 cratericusNDH003 cratericusNDH007 cratericusNDH009 cratericusNDH011 cratericusNDH013 cratericusNDH014 cratericusNDH016 cratericusNDH018 cratericusNDH019 cratericusNDH020 cratericusNDH021 cratericusNDH022 cratericusNDH023 cratericusNDH024 cratericusNDH025 cratericusNDH026 cratericusNDH029 cratericusNDH030 cratericusNDH031 cratericusNDH032 cratericusNDH033 cratericusNDH034 cratericusNDH035 cratericusNDH036 cratericusNDH037 cratericusNDH038 cratericusZM13090 cratericusZM13093 cratericusZM13094 cratericusZM13097 cratericusZM13098 cratericusZM13100 cratericusZM13101 cratericusZM13102 cratericusZM13103 cratericusZM13105 cratericusZM13693 cratericusZM13694 cratericusZM13696 cratericusZM13740 cratericusZM13741 cratericusZM13742 cratericusZM13754 cratericusZM13755 cratericusZM13756 cratericusZM16546 cratericusZM16547 cratericusZM16548 cratericusZM16549 cratericusZM16555 cratericusZM16556 cratericusZM16580 cratericusZM16581 cratericusZM16582 cratericusZM16584 cratericusZM16585 cratericusZM16587 cratericusZM16588 cratericusZM16600 cratericusZM16601 cratericusZM16602, 
-      cratericus_B:  cratericusJRD109 cratericusJRD110 cratericusJRD112 amoenusMSB274473 amoenusMSB274502 amoenusMSB274505,
-      ruficaudus: ruficaudusJMG016 ruficaudusJMG134 ruficaudusJMS122 ruficaudusJMS201 ruficaudusJMS203 ruficaudusJRD142 ruficaudusZM16595 ruficaudusZM16596 ruficaudusZM16597 ruficaudusZM16598,
-      minimus: minimusMSB268068 minimusNDH041 minimusNDH045 minimusNDH063 minimusNDH064 minimusNDH072 minimusNDH084 minimusZM10995 minimusZM11027 minimusZM11417 minimusZM12230 minimusZM12232 minimusZM12233 minimusZM12277 minimusZM13061 minimusZM16544 minimusZM16545,
-      ;
+        amoenus:        amoenusJMG058 amoenusJMS220 amoenusJRD008 amoenusJRD023 amoenusJRD158 amoenusJRD161 amoenuslutiJMS297 amoenusMSB224396 amoenusMSB224913 amoenusMSB227699 amoenusMSB227795 amoenusMSB227882 amoenusMSB228278 amoenusMSB230567 amoenusMSB268064 amoenusMSB268065 amoenusMSB268069 amoenusMSB269867 amoenusMSB269868 amoenusMSB269869 amoenusMSB269870 amoenusMSB269871 amoenusMSB269882 amoenusMSB269957 amoenusMSB269966 amoenusMSB292133 amoenusMSB292142 amoenusMSB292143 amoenusMSB292145 amoenusNEOR184 amoenusRBCM19566 amoenusRBCM20037 amoenusZM12231 amoenusZM13088 amoenusZM13089 amoenusZM16576 amoenusZM16577 amoenusZM16578 amoenusZM16579 amoenusZM16593 amoenusZM16594 amoenusZM16599 cratericusMSB269928 cratericusZM13093 cratericusZM13101 cratericusZM13102 cratericusZM13103 cratericusZM16601,
+        cratericus_A:   amoenusJMG008 amoenusJRD028 amoenusMSB225555 amoenusMSB225676 amoenusMSB269634 amoenusMSB269635 amoenusMSB269636 amoenusMSB269638 amoenusMSB269640 amoenusMSB269856 amoenusMSB269857 amoenusMSB269858 amoenusMSB274470 amoenusMSB274506 amoenusZM12446 cratericusJRD111 cratericusJRD121 cratericusJRD122 cratericusJRD123 cratericusMSB264026 cratericusNDH002 cratericusNDH003 cratericusNDH007 cratericusNDH009 cratericusNDH011 cratericusNDH014 cratericusNDH018 cratericusNDH019 cratericusNDH020 cratericusNDH021 cratericusNDH022 cratericusNDH023 cratericusNDH024 cratericusNDH025 cratericusNDH026 cratericusNDH029 cratericusNDH030 cratericusNDH031 cratericusNDH032 cratericusNDH033 cratericusNDH034 cratericusNDH035 cratericusNDH036 cratericusNDH037 cratericusNDH038 cratericusZM13090 cratericusZM13094 cratericusZM13097 cratericusZM13098 cratericusZM13100 cratericusZM13105 cratericusZM13693 cratericusZM13694 cratericusZM13696 cratericusZM13740 cratericusZM13741 cratericusZM13742 cratericusZM13754 cratericusZM13755 cratericusZM13756 cratericusZM16546 cratericusZM16547 cratericusZM16548 cratericusZM16549 cratericusZM16555 cratericusZM16556 cratericusZM16580 cratericusZM16581 cratericusZM16582 cratericusZM16584 cratericusZM16585 cratericusZM16587 cratericusZM16588 cratericusZM16600 cratericusZM16602,
+        cratericus_B:   amoenusMSB274473 amoenusMSB274502 amoenusMSB274505 cratericusJRD109 cratericusJRD110 cratericusJRD112 cratericusNDH013,
+        ruficaudus:     ruficaudusJMG016 ruficaudusJMG134 ruficaudusJMS122 ruficaudusJMS201 ruficaudusJMS203 ruficaudusJRD142 ruficaudusZM16595 ruficaudusZM16596 ruficaudusZM16597 ruficaudusZM16598,
+        minimus:        cratericusMSB197856 minimusMSB268068 minimusNDH041 minimusNDH045 minimusNDH063 minimusNDH064 minimusNDH072 minimusNDH084 minimusZM10995 minimusZM11027 minimusZM11417 minimusZM12230 minimusZM12232 minimusZM12233 minimusZM12277 minimusZM13061 minimusZM16544 minimusZM16545,
+        ;
 END;
 ```
 Species Tree paup block: run_svdquartets_ddRads_speciestree.sh
@@ -376,19 +360,46 @@ Execute run_svdquartets_ddRads_lineagetree.sh
 here is what our paupBlock looks like:
 ```
 begin paup;
-   log start file=svdQ.172ind.speciesTree.log replace;
-   execute ./svdQ_SNP.filtered.172ind.100bp.thin.SpeciesSet.nexus;
-   outgroup minimusMSB268068 minimusNDH041 minimusNDH045 minimusNDH063 minimusNDH064 minimusNDH072 minimusNDH084 minimusZM10995 minimusZM11027 minimusZM11417 minimusZM12230 minimusZM12232 minimusZM12233 minimusZM12277 minimusZM13061 minimusZM16544 minimusZM16545;
-   SVDquartets evalQuartets=all bootstrap=yes nreps=1000 taxpartition=Tamias_species nthreads=8 mrpFile=svdQ.172ind.SpeciesTree_qall_b1000;
-   savetrees file=svdQ.172ind..SpeciesTree.b1000.tre format=Newick root=yes supportValues=nodeLabels;
+   log start file=svdQ.158ind.speciesTree.log replace;
+   execute ./populations.snps.min4_Species_partitions.nexus;
+   outgroup minimusMSB268068 minimusNDH041 minimusNDH045 minimusNDH063 minimusNDH064 minimusNDH072 minimusNDH084 minimusZM10995 minimusZM11027 minimusZM114>
+   SVDquartets evalQuartets=all bootstrap=yes nreps=1000 taxpartition=Tamias_species nthreads=12 mrpFile=svdQ.158ind.SpeciesTree_qall_b1000;
+   savetrees file=svdQ.158ind.SpeciesTree.b1000.tre format=Newick root=yes supportValues=nodeLabels;
 end;
 ```
-
-## Analysis of Hybridization
-We used HyDe to detect hybridization under the invariants framework of SVDquartets. The theory behind HyDe can be found in [Blischal et al. 2018](https://academic.oup.com/sysbio/article/67/5/821/4944070?login=true)
-
+## Caster
+Caster infers a species trees from site patterns using a statistical framework that is consistent with the multispecies coalescent model. We use both caster-sites (uses single-site patterns) and caster-pair (uses pairs of sites). See [Zhang et al. 2025](https://www.science.org/doi/10.1126/science.adk9688) for a full description of the method.
 ```
-run_hyde.py -i HyDe_SNP.filtered.172ind.100bp.thin.phy -m hyde_popMap_5sp.txt -o minimus -n 172 -t 5 -s 47537
+# Caster-site
+/opt/ASTER/bin/caster-site -t 24 -r 16 -s 16 -i ../populations.snps.min4.phy -o caster-sites.158ind.lineageTree.tre 2> caster-sites_158ind.lineageTree.log
+# Caster-pair
+/opt/ASTER/bin/caster-site -t 24 -r 16 -s 16 -i ../populations.snps.min4.phy -o caster-pair.158ind.lineageTree.tre 2> caster-pair_158ind.lineageTree.log
 ```
+## population level D-statistic using [Genomics General](https://github.com/simonhmartin/tutorials/blob/master/ABBA_BABA_whole_genome/README.md)
+
+Convert to genotype file
+```
+/home/nh253642e/software/genomics_general/VCF_processing/parseVCF.py -i Tamias_MultiSmpl_Filtered_plink.newID.ldkb1r0.8.150ind.vcf.gz --skipIndels | bgzip > Tamias_MultiSmpl_Filtered_plink.newID.ldkb1r0.8.150ind.geno.gz
+```
+# calculate genome wide allele frequencies
+we need to first determine the frequency of the derived allele in each populaton at each polymorphic site in the genome. 
+The input file has already been filtered to contain only bi-allelic sites. We use the provided script (freq.py) to calculate alellic frequencies.
+The script requires we define populatuions. In our case, we are setting each cratericus A pop as an independent pop. 
+By setting --target derived we obtain the frquency of the derived allele in each population at each site. 
+This is based on using the final population specified (T. miniums) as the outgroup. 
+Sites at which this population is not fixed for the ancestral state are discarded.
+
+# craA populations 
+```
+/home/nh253642e/software/genomics_general/freq.py -g Tamias_MultiSmpl_Filtered_plink.newID.ldkb1r0.8.150ind.geno.gz \
+-p cra_1 -p cra_2 -p cra_3 -p cra_4 -p cra_5 \
+-p cra_6 -p cra_7 -p cra_8 -p cra_9 -p cra_10 \
+-p cra_11 -p cra_12 -p cra_13 -p cra_14 \
+-p cra_15 -p cra_16 -p cra_17 -p cra_18 -p cra_19 \
+-p cra_20 -p cra_B -p amoenus -p ruficaudus -p minimus \
+--popsFile tamias_150ind_RADs_craA_pops.txt --target derived \
+-t 24 -o Tamias_MultiSmpl_Filtered_plink.newID.ldkb1r0.8.150ind_cra_A_populations.tsv.gz
+```
+Finally, we can use the Rscript [ddrad_dstat.R]() to calculate site pattern counts, D-stat and calculate Z scores. 
 
 #### Go back to [main page](https://github.com/NathanaeldHerrera/Chipmunk-phylogenomics/tree/main)
