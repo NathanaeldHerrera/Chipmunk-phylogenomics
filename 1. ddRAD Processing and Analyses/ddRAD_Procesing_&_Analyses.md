@@ -1,4 +1,4 @@
-# ddRAD data processing using [Stacks v2.55](http://catchenlab.life.illinois.edu/stacks/)
+# ddRAD Data Processing & Population Genomics Pipeline ([Stacks v2.55])(http://catchenlab.life.illinois.edu/stacks/)
 
 I used process_radtags first to process our raw ddRAD-seq data (PE sequencing).
 Libraries are demultiplexed as below:
